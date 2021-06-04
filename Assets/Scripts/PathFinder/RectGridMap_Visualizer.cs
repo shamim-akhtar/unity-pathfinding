@@ -80,7 +80,7 @@ public class RectGridMap_Visualizer : MonoBehaviour
 
         // add the visual delegates to show pathfinding in action.
         //CompPathFinder pf = mNpc.GetComponent<CompPathFinder>();
-        mPathFinder = new PathFinder<Vector2Int>();
+        mPathFinder = new AStarPathFinder<Vector2Int>();
         mPathFinder.SetGCostFunction(RectGridMap.GetCostBetweenTwoCells);
         mPathFinder.SetHeuristicCostFunction(RectGridMap.GetManhattanCost);
         mPathFinder.onAddToClosedList += OnAddToClosedList;
@@ -88,7 +88,6 @@ public class RectGridMap_Visualizer : MonoBehaviour
         mPathFinder.onChangeCurrentNode += OnChangeCurrentNode;
         mPathFinder.onDestinationFound += OnDestinationFound;
     }
-
 
     public void OnChangeCurrentNode(PathFinderNode<Vector2Int> node)
     {
