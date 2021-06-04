@@ -35,7 +35,7 @@ namespace PathFinder
 
         public class Node
         {
-            public Node Parent { get; private set; }
+            public Node Parent { get; set; }
             public Grid.GridCell Cell { get; private set; }
             public float Fcost { get; private set; }
             public float GCost { get; private set; }
@@ -48,6 +48,12 @@ namespace PathFinder
                 Hcost = hCost;
                 GCost = gCost;
                 Fcost = hCost + gCost;
+            }
+
+            public void SetGCost(float c)
+            {
+                GCost = c;
+                Fcost = GCost + Hcost;
             }
         }
 
@@ -77,13 +83,20 @@ namespace PathFinder
             return n;
         }
 
-        bool IsCellInList(List<Node> myList, Grid.GridCell cell)
+        /// <summary>
+        /// Returns -1 if cell is not found in the list.
+        /// else return the index to the cell.
+        /// </summary>
+        /// <param name="myList"></param>
+        /// <param name="cell"></param>
+        /// <returns></returns>
+        int IsCellInList(List<Node> myList, Grid.GridCell cell)
         {
             for(int i = 0; i < myList.Count; ++i)
             {
-                if (cell == myList[i].Cell) return true;
+                if (cell == myList[i].Cell) return i;
             }
-            return false;
+            return -1;
         }
 
         private Node mRoot = null;
@@ -116,13 +129,13 @@ namespace PathFinder
         Node currentNode = null;
         public PathFinderStatus SearchStep()
         {
-            // Add the current node to the closed list.
-            mCList.Add(currentNode);
-            onAddToClosedList?.Invoke(currentNode);
-
             // Get the least cost element from the open list. 
             currentNode = GetRemoveLeastCostElement(mOList);
             onChangeCurrentNode?.Invoke(currentNode);
+
+            // Add the current node to the closed list.
+            mCList.Add(currentNode);
+            onAddToClosedList?.Invoke(currentNode);
 
             // Check if the node contains the Goal cell.
             if(currentNode.Cell == mGoalCell)
@@ -140,25 +153,43 @@ namespace PathFinder
             {
                 // first of all check if the node is already in the closedlist.
                 // if so then we do not need to continue search for this node.
-                if (!IsCellInList(mCList, cell))
+                if (IsCellInList(mCList, cell) == -1)
                 {
-                    if (!IsCellInList(mOList, cell))
-                    {
-                        // we will add the cell to the open list.
-                        // to do that we will first have to calculate the G and the H.
-                        // 
-                        // Remember G is the cost from the start till now.
-                        // So to get G we will get the G cost of the currentNode
-                        // and add 1 (since we are only travelling on sideways).
-                        // We can actually implement a function to calculate the cost 
-                        // between two adjacent cells. 
-                        // For now we will just add 1.0f
+                    // The cell does not exist in the closed list.
 
-                        float G = currentNode.GCost + /*1.0f;*/Grid.GetCostBetweenTwoCells(currentNode.Cell, cell);
-                        float H = Grid.GetManhattanCost(cell, mGoalCell);
+                    // Calculate the cost of the node from its parent.
+                    // Remember G is the cost from the start till now.
+                    // So to get G we will get the G cost of the currentNode
+                    // and add the cost from currentNode to this cell.
+                    // We can actually implement a function to calculate the cost 
+                    // between two adjacent cells. 
+                    
+                    float G = currentNode.GCost + Grid.GetCostBetweenTwoCells(currentNode.Cell, cell);
+                    float H = Grid.GetManhattanCost(cell, mGoalCell);
+
+                    // Check if the cell is already there in the open list.
+                    int idOList = IsCellInList(mOList, cell);
+                    if (idOList == -1)
+                    {
+                        // The cell does not exist in the open list.
+                        // We will add the cell to the open list.
+
                         Node n = new Node(cell, currentNode, G, H);
                         mOList.Add(n);
                         onAddToOpenList?.Invoke(n);
+                    }
+                    else 
+                    {
+                        // if the cell exists in the openlist then check if the G cost is less than the 
+                        // one already in the list.
+                        float oldG = mOList[idOList].GCost;
+                        if(G < oldG)
+                        {
+                            // change the parent and update the cost to the new G
+                            mOList[idOList].Parent = currentNode;
+                            mOList[idOList].SetGCost(G);
+                            onAddToOpenList?.Invoke(mOList[idOList]);
+                        }
                     }
                 }
             }
