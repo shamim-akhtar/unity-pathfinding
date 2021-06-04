@@ -21,6 +21,7 @@ public class RectGridMap_Visualizer : MonoBehaviour
         Dijkstra,
         Greedy_Best_First,
     }
+    public PathFindingAlgorithm mAlgo = PathFindingAlgorithm.AStar;
 
     [HideInInspector]
     public float GridCellWidth = 1f;
@@ -79,14 +80,40 @@ public class RectGridMap_Visualizer : MonoBehaviour
         mAlgoViz[PathFindingAlgorithm.AStar].mCamera.orthographicSize = ((Cols + 1) * GridCellWidth)/2;
         mAlgoViz[PathFindingAlgorithm.Dijkstra].mCamera.orthographicSize = ((Cols + 1) * GridCellWidth)/2;
         mAlgoViz[PathFindingAlgorithm.Greedy_Best_First].mCamera.orthographicSize = ((Cols + 1) * GridCellWidth)/2;
+    }
 
-        //mAlgoViz[PathFindingAlgorithm.AStar].mCamera.rect = new Rect(0, 0, 0.5f, 0.5f);
-        //mAlgoViz[PathFindingAlgorithm.Dijkstra].mCamera.rect = new Rect(0.5f, 0, 0.5f, 0.5f);
-        //mAlgoViz[PathFindingAlgorithm.Greedy_Best_First].mCamera.rect = new Rect(0, 0.5f, 0.5f, 0.5f);
+    void SetActiveView()
+    {
+        switch(mAlgo)
+        {
+            case PathFindingAlgorithm.AStar:
+                {
+                    mAlgoViz[mAlgo].gameObject.SetActive(true);
+                    mAlgoViz[PathFindingAlgorithm.Dijkstra].gameObject.SetActive(false);
+                    mAlgoViz[PathFindingAlgorithm.Greedy_Best_First].gameObject.SetActive(false);
+                    break;
+                }
+            case PathFindingAlgorithm.Dijkstra:
+                {
+                    mAlgoViz[mAlgo].gameObject.SetActive(true);
+                    mAlgoViz[PathFindingAlgorithm.AStar].gameObject.SetActive(false);
+                    mAlgoViz[PathFindingAlgorithm.Greedy_Best_First].gameObject.SetActive(false);
+                    break;
+                }
+            case PathFindingAlgorithm.Greedy_Best_First:
+                {
+                    mAlgoViz[mAlgo].gameObject.SetActive(true);
+                    mAlgoViz[PathFindingAlgorithm.Dijkstra].gameObject.SetActive(false);
+                    mAlgoViz[PathFindingAlgorithm.AStar].gameObject.SetActive(false);
+                    break;
+                }
+        }
     }
 
     void Update()
     {
+        SetActiveView();
+
         // toggle go/no go cells.
         if (Input.GetMouseButtonDown(0))
         {
@@ -120,19 +147,6 @@ public class RectGridMap_Visualizer : MonoBehaviour
                             val.mGridCellSprites[x, y].GetComponent<RectGridCell>().SetInnerColor(COLOR_NON_WALKABLE);
                         }
                     }
-
-
-                    //// Set walkable for all three algorithm type.
-                    //sc.mGridCellData.IsWalkable = !sc.mGridCellData.IsWalkable;
-
-                    //if (sc.mGridCellData.IsWalkable)
-                    //{
-                    //    sc.SetInnerColor(COLOR_WALKABLE);
-                    //}
-                    //else
-                    //{
-                    //    sc.SetInnerColor(COLOR_NON_WALKABLE);
-                    //}
                 }
             }
         }
