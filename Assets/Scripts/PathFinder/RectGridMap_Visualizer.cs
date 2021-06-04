@@ -8,52 +8,38 @@ public class RectGridMap_Visualizer : MonoBehaviour
     public int Cols = 10;
     public int Rows = 10;
 
-    private float GridCellWidth = 1f;
-    private float GridCellHeight = 1f;
-
     public int goalX = 7;
     public int goalY = 8;
 
     public GameObject PrefabCell;
 
-    public RectGridMap mGrid { get; private set; }
-    private PathFinder<Vector2Int> mPathFinder;
+    public GameObject PrefabAlgoViz;
 
-    private GameObject[,] mGridCellSprites;
-
-    Color COLOR_WALKABLE = new Color(1.0f, 1.0f, 1.0f, 0.0f);
-    Color COLOR_NON_WALKABLE = new Color(0.0f, 0.0f, 0.0f, 1.0f);
-    Color COLOR_OPEN_LIST = new Color(0.0f, 0.0f, 1.0f, 0.3f);
-    Color COLOR_CLOSED_LIST = new Color(0.0f, 0.0f, 0.0f, 0.3f);
-    Color COLOR_CURRENT_NODE = new Color(1.0f, 0.0f, 0.0f, 0.3f);
-    Color COLOR_SOLUTION = new Color(0.0f, 1.0f, 1.0f, 0.7f);
-    Color COLOR_DESTINATION = new Color(0.0f, 1.0f, 0.0f, 0.7f);
-
-    void CreateGrid()
+    public enum PathFindingAlgorithm
     {
-        for (int i = 0; i < Cols; ++i)
-        {
-            for (int j = 0; j < Rows; ++j)
-            {
-                GameObject obj = Instantiate(PrefabCell, new Vector3(GridCellWidth * i, GridCellHeight * j, 0.0f), Quaternion.identity);
-                obj.transform.parent = transform;
-                RectGridCell sc = obj.GetComponent<RectGridCell>();
-
-                sc.mGridCellData = mGrid.GetLocationData(mGrid.GetCell(i, j));
-                mGridCellSprites[i, j] = obj;
-                sc.SetInnerColor(COLOR_WALKABLE);
-            }
-        }
-
-
-        GameObject obj1 = mGridCellSprites[goalX, goalY];
-        RectGridCell cellScript = obj1.GetComponent<RectGridCell>();
-
-        if (cellScript)
-        {
-            cellScript.SetInnerColor(COLOR_DESTINATION);
-        }
+        AStar,
+        Dijkstra,
+        Greedy_Best_First,
     }
+
+    [HideInInspector]
+    public float GridCellWidth = 1f;
+    [HideInInspector]
+    public float GridCellHeight = 1f;
+    [HideInInspector]
+    public RectGridMap mGrid;
+
+    public Color COLOR_WALKABLE = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+    public Color COLOR_NON_WALKABLE = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+    public Color COLOR_OPEN_LIST = new Color(0.0f, 0.0f, 1.0f, 0.3f);
+    public Color COLOR_CLOSED_LIST = new Color(0.0f, 0.0f, 0.0f, 0.3f);
+    public Color COLOR_CURRENT_NODE = new Color(1.0f, 0.0f, 0.0f, 0.3f);
+    public Color COLOR_SOLUTION = new Color(0.0f, 1.0f, 1.0f, 0.7f);
+    public Color COLOR_DESTINATION = new Color(0.0f, 1.0f, 0.0f, 0.7f);
+
+    private Dictionary<PathFindingAlgorithm, RectGridMap_Visualizer_Algo> mAlgoViz = 
+        new Dictionary<PathFindingAlgorithm, RectGridMap_Visualizer_Algo>();
+
 
     // Start is called before the first frame update
     void Start()
@@ -68,123 +54,35 @@ public class RectGridMap_Visualizer : MonoBehaviour
         obj.SetActive(false);
 
         mGrid = new RectGridMap(Cols, Rows);
-        mGridCellSprites = new GameObject[Cols, Rows];
-
-        CreateGrid();
-
-        Camera.main.orthographicSize = ((Cols + 1) * GridCellWidth) / 2.0f;
-        Camera.main.transform.position = new Vector3(
-            ((Cols - 1) * GridCellWidth) / 2,
-            ((Rows - 1) * GridCellHeight) / 2,
-            -10.0f);
-
-        // add the visual delegates to show pathfinding in action.
-        //CompPathFinder pf = mNpc.GetComponent<CompPathFinder>();
-        mPathFinder = new AStarPathFinder<Vector2Int>();
-        mPathFinder.SetGCostFunction(RectGridMap.GetCostBetweenTwoCells);
-        mPathFinder.SetHeuristicCostFunction(RectGridMap.GetManhattanCost);
-        mPathFinder.onAddToClosedList += OnAddToClosedList;
-        mPathFinder.onAddToOpenList += OnAddToOpenList;
-        mPathFinder.onChangeCurrentNode += OnChangeCurrentNode;
-        mPathFinder.onDestinationFound += OnDestinationFound;
+        CreateAlgoView(PathFindingAlgorithm.AStar);
+        CreateAlgoView(PathFindingAlgorithm.Dijkstra);
+        CreateAlgoView(PathFindingAlgorithm.Greedy_Best_First);
+        SetCameraSizes();
     }
 
-    public void OnChangeCurrentNode(PathFinderNode<Vector2Int> node)
+    void CreateAlgoView(PathFindingAlgorithm type)
     {
-        GameObject obj = mGridCellSprites[node.Location.x, node.Location.y];
-        RectGridCell cellScript = obj.GetComponent<RectGridCell>();
-
-        if (cellScript)
+        GameObject algoGameObj = Instantiate(PrefabAlgoViz);
+        algoGameObj.name = type.ToString();
+        RectGridMap_Visualizer_Algo algoScr = algoGameObj.GetComponent<RectGridMap_Visualizer_Algo>();
+        if (algoScr != null)
         {
-            cellScript.SetInnerColor(COLOR_CURRENT_NODE);
-            cellScript.SetHCost(node.Hcost);
-            cellScript.SetGCost(node.GCost);
-            cellScript.SetFCost(node.Fcost);
+            mAlgoViz.Add(type, algoScr);
+            algoScr.mCamera = Camera.main;
+            algoScr.mVisualizer = this;
+            algoScr.mAlgorithm = type;
+            algoScr.Init();
         }
     }
-
-    public void OnAddToOpenList(PathFinderNode<Vector2Int> node)
+    void SetCameraSizes()
     {
-        GameObject obj = mGridCellSprites[node.Location.x, node.Location.y];
-        RectGridCell cellScript = obj.GetComponent<RectGridCell>();
+        mAlgoViz[PathFindingAlgorithm.AStar].mCamera.orthographicSize = ((Cols + 1) * GridCellWidth)/2;
+        mAlgoViz[PathFindingAlgorithm.Dijkstra].mCamera.orthographicSize = ((Cols + 1) * GridCellWidth)/2;
+        mAlgoViz[PathFindingAlgorithm.Greedy_Best_First].mCamera.orthographicSize = ((Cols + 1) * GridCellWidth)/2;
 
-        if (cellScript)
-        {
-            cellScript.SetInnerColor(COLOR_OPEN_LIST);
-            cellScript.SetHCost(node.Hcost);
-            cellScript.SetGCost(node.GCost);
-            cellScript.SetFCost(node.Fcost);
-        }
-    }
-
-    public void OnAddToClosedList(PathFinderNode<Vector2Int> node)
-    {
-        GameObject obj = mGridCellSprites[node.Location.x, node.Location.y];
-        RectGridCell cellScript = obj.GetComponent<RectGridCell>();
-
-        if (cellScript)
-        {
-            cellScript.SetInnerColor(COLOR_CLOSED_LIST);
-            cellScript.SetHCost(node.Hcost);
-            cellScript.SetGCost(node.GCost);
-            cellScript.SetFCost(node.Fcost);
-        }
-    }
-
-    public void OnDestinationFound(PathFinderNode<Vector2Int> node)
-    {
-        List<PathFinderNode<Vector2Int>> path = new List<PathFinderNode<Vector2Int>>();
-
-        PathFinderNode<Vector2Int> n = node;
-        while (n != null)
-        {
-            path.Add(n);
-            n = n.Parent;
-        }
-
-        for (int i = path.Count - 1; i >= 0; i = i - 1)
-        {
-            n = path[i];
-            GameObject obj = mGridCellSprites[n.Location.x, n.Location.y];
-            RectGridCell cellScript = obj.GetComponent<RectGridCell>();
-
-            if (cellScript)
-            {
-                cellScript.SetInnerColor(COLOR_SOLUTION);
-            }
-        }
-    }
-
-    public void Reset()
-    {
-        mPathFinder.Reset();
-
-        for (int i = 0; i < Cols; ++i)
-        {
-            for (int j = 0; j < Rows; ++j)
-            {
-                GameObject obj = mGridCellSprites[i, j];
-                RectGridCell sc = obj.GetComponent<RectGridCell>();
-                sc.mGridCellData = mGrid.GetLocationData(mGrid.GetCell(i, j));
-
-                if (sc.mGridCellData.IsWalkable)
-                {
-                    sc.SetInnerColor(COLOR_WALKABLE);
-                }
-                else
-                {
-                    sc.SetInnerColor(COLOR_NON_WALKABLE);
-                }
-                sc.ClearTexts();
-            }
-        }
-        GameObject obj1 = mGridCellSprites[goalX, goalY];
-        RectGridCell cellScript = obj1.GetComponent<RectGridCell>();
-
-        if (cellScript)
-        {
-            cellScript.SetInnerColor(COLOR_DESTINATION);
-        }
+        //mAlgoViz[PathFindingAlgorithm.AStar].mCamera.rect = new Rect(0, 0, 0.5f, 0.5f);
+        //mAlgoViz[PathFindingAlgorithm.Dijkstra].mCamera.rect = new Rect(0.5f, 0, 0.5f, 0.5f);
+        //mAlgoViz[PathFindingAlgorithm.Greedy_Best_First].mCamera.rect = new Rect(0, 0.5f, 0.5f, 0.5f);
     }
 
     void Update()
@@ -203,31 +101,54 @@ public class RectGridMap_Visualizer : MonoBehaviour
                 RectGridCell sc = obj.GetComponent<RectGridCell>();
                 if (sc != null)
                 {
-                    sc.mGridCellData.IsWalkable = !sc.mGridCellData.IsWalkable;
+                    int x = sc.mGridCellData.Location.x;
+                    int y = sc.mGridCellData.Location.y;
 
-                    if (sc.mGridCellData.IsWalkable)
+                    // because there is only one grid and one set of locations 
+                    // so we just need to make the walkable/nonwalkable once.
+                    sc.mGridCellData.IsWalkable = !sc.mGridCellData.IsWalkable;
+                    foreach (RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
                     {
-                        sc.SetInnerColor(COLOR_WALKABLE);
+                        LocationData<Vector2Int> ld = mGrid.GetLocationData(mGrid.GetCell(x, y));
+
+                        if (ld.IsWalkable)
+                        {
+                            val.mGridCellSprites[x,y].GetComponent<RectGridCell>().SetInnerColor(COLOR_WALKABLE);
+                        }
+                        else
+                        {
+                            val.mGridCellSprites[x, y].GetComponent<RectGridCell>().SetInnerColor(COLOR_NON_WALKABLE);
+                        }
                     }
-                    else
-                    {
-                        sc.SetInnerColor(COLOR_NON_WALKABLE);
-                    }
+
+
+                    //// Set walkable for all three algorithm type.
+                    //sc.mGridCellData.IsWalkable = !sc.mGridCellData.IsWalkable;
+
+                    //if (sc.mGridCellData.IsWalkable)
+                    //{
+                    //    sc.SetInnerColor(COLOR_WALKABLE);
+                    //}
+                    //else
+                    //{
+                    //    sc.SetInnerColor(COLOR_NON_WALKABLE);
+                    //}
                 }
             }
         }
-
         if (Input.GetKeyDown(KeyCode.Space))
         {
-            Reset();
             FindPath();
         }
 
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            if (mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+            foreach (RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
             {
-                mPathFinder.Step();
+                if (val.mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+                {
+                    val.mPathFinder.Step();
+                }
             }
         }
     }
@@ -235,6 +156,24 @@ public class RectGridMap_Visualizer : MonoBehaviour
     void FindPath()
     {
         Vector2Int start = Vector2Int.zero;
-        mPathFinder.Initialize(mGrid, start, new Vector2Int(goalX, goalY));
+
+        bool canInitialize = true;
+        foreach(RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
+        {
+            if (val.mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+            {
+                canInitialize = false;
+                break;
+            }
+        }
+
+        if(canInitialize)
+        {
+            foreach (RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
+            {
+                val.Reset();
+                val.mPathFinder.Initialize(mGrid, start, new Vector2Int(goalX, goalY));
+            }
+        }
     }
 }
