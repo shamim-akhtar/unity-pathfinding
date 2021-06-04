@@ -129,16 +129,16 @@ namespace PathFinder
         Node currentNode = null;
         public PathFinderStatus SearchStep()
         {
-            // Get the least cost element from the open list. 
-            currentNode = GetRemoveLeastCostElement(mOList);
-            onChangeCurrentNode?.Invoke(currentNode);
-
             // Add the current node to the closed list.
             mCList.Add(currentNode);
             onAddToClosedList?.Invoke(currentNode);
 
+            // Get the least cost element from the open list. 
+            currentNode = GetRemoveLeastCostElement(mOList);
+            onChangeCurrentNode?.Invoke(currentNode);
+
             // Check if the node contains the Goal cell.
-            if(currentNode.Cell == mGoalCell)
+            if (currentNode.Cell == mGoalCell)
             {
                 Debug.Log("Found destination.");
                 Status = PathFinderStatus.SUCCESS;
