@@ -37,13 +37,7 @@ public class RectGridMap_Visualizer_Algo : MonoBehaviour
             }
         }
 
-        GameObject obj1 = mGridCellSprites[mVisualizer.goalX, mVisualizer.goalY];
-        RectGridCell cellScript = obj1.GetComponent<RectGridCell>();
-
-        if (cellScript)
-        {
-            cellScript.SetInnerColor(mVisualizer.COLOR_DESTINATION);
-        }
+        Reset();
     }
 
     public void Init()
@@ -154,7 +148,8 @@ public class RectGridMap_Visualizer_Algo : MonoBehaviour
 
     public void Reset()
     {
-        mPathFinder.Reset();
+        if(mPathFinder != null)
+            mPathFinder.Reset();
 
         for (int i = 0; i < mVisualizer.Cols; ++i)
         {
@@ -181,6 +176,13 @@ public class RectGridMap_Visualizer_Algo : MonoBehaviour
         if (cellScript)
         {
             cellScript.SetInnerColor(mVisualizer.COLOR_DESTINATION);
+        }
+        obj1 = mGridCellSprites[mVisualizer.startX, mVisualizer.startY];
+        cellScript = obj1.GetComponent<RectGridCell>();
+
+        if (cellScript)
+        {
+            cellScript.SetInnerColor(mVisualizer.COLOR_START);
         }
     }
 

@@ -8,11 +8,20 @@ public class RectGridMap_Visualizer : MonoBehaviour
     public int Cols = 10;
     public int Rows = 10;
 
-    public int goalX = 7;
-    public int goalY = 8;
+    [HideInInspector]
+    public int goalX = 0;
+    [HideInInspector]
+    public int goalY = 0;
+
+    [HideInInspector]
+    public int startX = 0;
+    [HideInInspector]
+    public int startY = 0;
+
+    public GameObject mStartGameObject;
+    public GameObject mGoalGameObject;
 
     public GameObject PrefabCell;
-
     public GameObject PrefabAlgoViz;
 
     public enum PathFindingAlgorithm
@@ -37,6 +46,7 @@ public class RectGridMap_Visualizer : MonoBehaviour
     public Color COLOR_CURRENT_NODE = new Color(1.0f, 0.0f, 0.0f, 0.3f);
     public Color COLOR_SOLUTION = new Color(0.0f, 1.0f, 1.0f, 0.7f);
     public Color COLOR_DESTINATION = new Color(0.0f, 1.0f, 0.0f, 0.7f);
+    public Color COLOR_START = new Color(0.0f, 1.0f, 1.0f, 0.7f);
 
     private Dictionary<PathFindingAlgorithm, RectGridMap_Visualizer_Algo> mAlgoViz = 
         new Dictionary<PathFindingAlgorithm, RectGridMap_Visualizer_Algo>();
@@ -54,11 +64,19 @@ public class RectGridMap_Visualizer : MonoBehaviour
         }
         obj.SetActive(false);
 
+        startX = (int)(mStartGameObject.transform.position.x / GridCellWidth);
+        startY = (int)(mStartGameObject.transform.position.y / GridCellHeight);
+        goalX = (int)(mGoalGameObject.transform.position.x / GridCellWidth);
+        goalY = (int)(mGoalGameObject.transform.position.y / GridCellHeight);
+
         mGrid = new RectGridMap(Cols, Rows);
         CreateAlgoView(PathFindingAlgorithm.AStar);
         CreateAlgoView(PathFindingAlgorithm.Dijkstra);
         CreateAlgoView(PathFindingAlgorithm.Greedy_Best_First);
         SetCameraSizes();
+
+        //mStartGameObject.transform.position = new Vector3(startX, startY, 0.0f);
+        //mGoalGameObject.transform.position = new Vector3(goalX, goalY, 0.0f);
     }
 
     void CreateAlgoView(PathFindingAlgorithm type)
@@ -169,7 +187,12 @@ public class RectGridMap_Visualizer : MonoBehaviour
 
     void FindPath()
     {
-        Vector2Int start = Vector2Int.zero;
+        startX = (int)(mStartGameObject.transform.position.x / GridCellWidth);
+        startY = (int)(mStartGameObject.transform.position.y / GridCellHeight);
+        goalX = (int)(mGoalGameObject.transform.position.x / GridCellWidth);
+        goalY = (int)(mGoalGameObject.transform.position.y / GridCellHeight);
+
+        Vector2Int start = new Vector2Int(startX, startY);
 
         bool canInitialize = true;
         foreach(RectGridMap_Visualizer_Algo val in mAlgoViz.Values)

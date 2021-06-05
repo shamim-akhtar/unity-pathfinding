@@ -27,7 +27,6 @@ namespace GameAI
 
             // A map should just comprise a set of locations
             protected Dictionary<T, LocationData<T>> mLocations = new Dictionary<T, LocationData<T>>();
-            protected List<T> mIndices = new List<T>();
 
             public abstract List<T> GetNeighbours(T loc);
             public LocationData<T> GetLocationData(T key)
