@@ -438,7 +438,7 @@ GameObject:
   - component: {fileID: 1165670097}
   - component: {fileID: 1165670099}
   m_Layer: 0
-  m_Name: NPC
+  m_Name: InteractivePathFinding
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -518,7 +518,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1165670096}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ffb185f554ecfc240ae9642663f5c270, type: 3}
+  m_Script: {fileID: 11500000, guid: 44e24586b4b4cc34c990d3e3792b7a86, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   mMap: {fileID: 1986478169}
@@ -533,8 +533,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1986478167}
   - component: {fileID: 1986478166}
-  - component: {fileID: 1986478169}
   - component: {fileID: 1986478168}
+  - component: {fileID: 1986478169}
   m_Layer: 0
   m_Name: SampleMap
   m_TagString: Untagged
@@ -642,7 +642,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1986478165}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 13888b3633474814a8a56824852369f3, type: 3}
+  m_Script: {fileID: 11500000, guid: 5b2eef314e5aedb4d80b65ec34d1cc8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   SceneName: example4

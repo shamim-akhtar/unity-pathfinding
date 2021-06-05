@@ -91,13 +91,13 @@ public class NPCMovement : MonoBehaviour
         }
     }
 
-    private bool player_moving = false;
+    //private bool player_moving = false;
     // coroutine to swap tiles smoothly
     public IEnumerator Coroutine_MoveOverSeconds(GameObject objectToMove, Vector3 end, float seconds)
     {
         float elapsedTime = 0;
         Vector3 startingPos = objectToMove.transform.position;
-        player_moving = true;
+        //player_moving = true;
         while (elapsedTime < seconds)
         {
             objectToMove.transform.position = Vector3.Lerp(startingPos, end, (elapsedTime / seconds));
@@ -105,7 +105,7 @@ public class NPCMovement : MonoBehaviour
 
             yield return new WaitForEndOfFrame();
         }
-        player_moving = false;
+        //player_moving = false;
         objectToMove.transform.position = end;
     }
 
