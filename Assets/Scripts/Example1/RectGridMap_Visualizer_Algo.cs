@@ -11,7 +11,7 @@ public class RectGridMap_Visualizer_Algo : MonoBehaviour
     [HideInInspector]
     public GameObject[,] mGridCellSprites;
 
-    public RectGridMap_Visualizer.PathFindingAlgorithm mAlgorithm = RectGridMap_Visualizer.PathFindingAlgorithm.AStar;
+    public PathFindingAlgorithm mAlgorithm = PathFindingAlgorithm.AStar;
     public RectGridMap_Visualizer mVisualizer;
     public Camera mCamera;
 
@@ -51,17 +51,17 @@ public class RectGridMap_Visualizer_Algo : MonoBehaviour
 
         switch(mAlgorithm)
         {
-            case RectGridMap_Visualizer.PathFindingAlgorithm.AStar:
+            case PathFindingAlgorithm.AStar:
                 {
                     mPathFinder = new AStarPathFinder<Vector2Int>();
                     break;
                 }
-            case RectGridMap_Visualizer.PathFindingAlgorithm.Dijkstra:
+            case PathFindingAlgorithm.Dijkstra:
                 {
                     mPathFinder = new DijkstraPathFinder<Vector2Int>();
                     break;
                 }
-            case RectGridMap_Visualizer.PathFindingAlgorithm.Greedy_Best_First:
+            case PathFindingAlgorithm.Greedy_Best_First:
                 {
                     mPathFinder = new GreedyPathFinder<Vector2Int>();
                     break;

@@ -6,6 +6,13 @@ namespace GameAI
 {
     namespace PathFinding
     {
+        public enum PathFindingAlgorithm
+        {
+            AStar,
+            Dijkstra,
+            Greedy_Best_First,
+        }
+
         public class PathFinderNode<T>
         {
             public PathFinderNode<T> Parent { get; set; }
@@ -156,6 +163,13 @@ namespace GameAI
 
                 // Call the delegate to inform any subscribers.
                 onAddToClosedList?.Invoke(CurrentNode);
+
+                if(mOpenList.Count == 0)
+                {
+                    // we have exhausted our search. No solution is found.
+                    Status = PathFinderStatus.FAILURE;
+                    return Status;
+                }
 
                 // Get the least cost element from the open list. 
                 // This becomes our new current node.

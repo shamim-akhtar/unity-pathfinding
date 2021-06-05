@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 
 namespace GameAI
 {
@@ -27,6 +30,12 @@ namespace GameAI
             // This stucture stores the 2d indices of the grid cells.
             protected Vector2Int[,] mIndices;
 
+            public int Cols { get { return mX; } }
+            public int Rows { get { return mY; } }
+
+            public int NumX { get { return mX; } }
+            public int NumY { get { return mY; } }
+
             // Construct a grid with the max cols and rows.
             public RectGridMap(int numX, int numY) : base()
             {
@@ -50,6 +59,85 @@ namespace GameAI
                         mLocations.Add(data.Location, data);
                     }
                 }                
+            }
+
+            // static method to save the map to a file.
+            public static void Save(RectGridMap map, string filename)
+            {
+                BinaryFormatter bf = new BinaryFormatter();
+                FileStream file = File.Create(Application.persistentDataPath + "/" + filename);
+
+                try
+                {
+                    bf.Serialize(file, map.mX);
+                    bf.Serialize(file, map.mY);
+                    for (int i = 0; i < map.mX; ++i)
+                    {
+                        for (int j = 0; j < map.mY; ++j)
+                        {
+                            //bf.Serialize(file, map.mIndices[i, j].x);
+                            //bf.Serialize(file, map.mIndices[i, j].y);
+
+                            LocationData<Vector2Int> data = map.GetLocationData(map.mIndices[i, j]);
+
+                            bf.Serialize(file, data.Cost);
+                            bf.Serialize(file, data.IsWalkable);
+                        }
+                    }
+                }
+                catch (SerializationException e)
+                {
+                    Debug.Log("Failed to save map. Reason: " + e.Message);
+                    throw;
+                }
+                finally
+                {
+                    file.Close();
+                }
+            }
+
+            // static method to load a map from a file.
+            public static RectGridMap Load(string filen)
+            {
+                string filename = Application.persistentDataPath + "/" + filen;
+                RectGridMap map = null;
+                if (!File.Exists(filename))
+                    return null;
+
+                BinaryFormatter bf = new BinaryFormatter();
+                using (FileStream file = new FileStream(filename, FileMode.Open))
+                {
+                    try
+                    {
+                        int mX = 0;
+                        int mY = 0;
+                        mX = (int)bf.Deserialize(file);
+                        mY = (int)bf.Deserialize(file);
+
+                        map = new RectGridMap(mX, mY);
+
+                        for (int i = 0; i < map.mX; ++i)
+                        {
+                            for (int j = 0; j < map.mY; ++j)
+                            {
+                                LocationData<Vector2Int> data = map.GetLocationData(map.mIndices[i, j]);
+
+                                data.Cost = (float)bf.Deserialize(file);
+                                data.IsWalkable = (bool)bf.Deserialize(file);
+                            }
+                        }
+                    }
+                    catch (SerializationException e)
+                    {
+                        Debug.Log("Failed to load map. Reason: " + e.Message);
+                        throw;
+                    }
+                    finally
+                    {
+                        file.Close();
+                    }
+                }
+                return map;
             }
 
             public Vector2Int GetCell(int i, int j)

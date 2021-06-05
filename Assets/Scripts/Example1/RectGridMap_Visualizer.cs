@@ -23,13 +23,6 @@ public class RectGridMap_Visualizer : MonoBehaviour
 
     public GameObject PrefabCell;
     public GameObject PrefabAlgoViz;
-
-    public enum PathFindingAlgorithm
-    {
-        AStar,
-        Dijkstra,
-        Greedy_Best_First,
-    }
     public PathFindingAlgorithm mAlgo = PathFindingAlgorithm.AStar;
 
     [HideInInspector]
