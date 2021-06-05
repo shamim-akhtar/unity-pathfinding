@@ -52,6 +52,10 @@ public class NPCMovement : MonoBehaviour
     {
         Vector2Int start = mMap.GetWorldPosToGridIndex(transform.position);
 
+        if (mGridViz != null)
+        {
+            mGridViz.Reset();
+        }
         // NOTE: Remember to call Reset as we are doing a new search.
         mPathFinder.Reset();
         mPathFinder.Initialize(mMap.mPathFinderMap, start, goal);

@@ -15,10 +15,8 @@ public class GridVisualizer : MonoBehaviour
     public float GridCellWidth = 1f;
     [HideInInspector]
     public float GridCellHeight = 1f;
-    [HideInInspector]
 
-    #region The colours for various type of cells
-    public Color COLOR_WALKABLE = new Color(1.0f, 1.0f, 1.0f, 0.0f);
+    public Color COLOR_WALKABLE = new Color(0f, 0.0f, 1.0f, 0.0f);
     public Color COLOR_NON_WALKABLE = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     public Color COLOR_OPEN_LIST = new Color(0.0f, 0.0f, 1.0f, 0.3f);
     public Color COLOR_CLOSED_LIST = new Color(0.0f, 0.0f, 0.0f, 0.3f);
@@ -26,7 +24,6 @@ public class GridVisualizer : MonoBehaviour
     public Color COLOR_SOLUTION = new Color(0.0f, 1.0f, 1.0f, 0.7f);
     public Color COLOR_DESTINATION = new Color(0.0f, 1.0f, 0.0f, 0.7f);
     public Color COLOR_START = new Color(0.0f, 1.0f, 1.0f, 0.7f);
-    #endregion
 
     // The sprites to represent each grid cell.
     [HideInInspector]
