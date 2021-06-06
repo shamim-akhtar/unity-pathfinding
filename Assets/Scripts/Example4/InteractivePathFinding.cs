@@ -5,7 +5,7 @@ using GameAI.PathFinding;
 
 public class InteractivePathFinding : MonoBehaviour
 {
-    public AStarPathFinder<Vector2Int> mPathFinder;
+    public AStarPathFinder<GameAI.PathFinding.RectGridCell> mPathFinder;
 
     // We will need to have access to the map so that 
     // our path finder can work.
@@ -15,8 +15,7 @@ public class InteractivePathFinding : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mPathFinder = new AStarPathFinder<Vector2Int>();
-        mPathFinder = new AStarPathFinder<Vector2Int>();
+        mPathFinder = new AStarPathFinder<GameAI.PathFinding.RectGridCell>();
         mPathFinder.SetGCostFunction(RectGridMap.GetCostBetweenTwoCells);
         mPathFinder.SetHeuristicCostFunction(RectGridMap.GetManhattanCost);
 
@@ -34,16 +33,16 @@ public class InteractivePathFinding : MonoBehaviour
     {
         if(Input.GetKeyDown(KeyCode.RightArrow))
         {
-            if (mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+            if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.RUNNING)
             {
                 mPathFinder.Step();
             }
 
-            if (mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.FAILURE)
+            if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.FAILURE)
             {
                 Debug.Log("Pathfinder could not find the path to the destination.");
             }
-            if (mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.SUCCESS)
+            if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.SUCCESS)
             {
             }
         }
@@ -51,14 +50,17 @@ public class InteractivePathFinding : MonoBehaviour
 
     public void FindPathAndMoveTo(Transform destination)
     {
-        if (mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+        if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.RUNNING)
         {
             Debug.Log("Path finder already running");
             return;
         }
 
-        Vector2Int goal = mMap.GetWorldPosToGridIndex(destination.position);
-        Vector2Int start = mMap.GetWorldPosToGridIndex(transform.position);
+        Vector2Int goalIndex = mMap.GetWorldPosToGridIndex(destination.position);
+        Vector2Int startIndex = mMap.GetWorldPosToGridIndex(transform.position);
+
+        GameAI.PathFinding.RectGridCell start = mMap.mPathFinderMap.GetCell(startIndex.x, startIndex.y);
+        GameAI.PathFinding.RectGridCell goal = mMap.mPathFinderMap.GetCell(goalIndex.x, goalIndex.y);
 
         if (mGridViz != null)
         {

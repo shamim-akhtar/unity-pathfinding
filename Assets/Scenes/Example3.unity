@@ -522,7 +522,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mMap: {fileID: 1986478169}
-  mGridViz: {fileID: 0}
+  mGridViz: {fileID: 478276457}
 --- !u!1 &1986478165
 GameObject:
   m_ObjectHideFlags: 0

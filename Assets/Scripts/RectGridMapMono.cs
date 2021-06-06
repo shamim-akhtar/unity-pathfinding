@@ -37,7 +37,7 @@ public class RectGridMapMono : MonoBehaviour
         int y = (int)(pos.y + 0.5f);
 
         if (x >= 0 && x < Cols && y >= 0 && y < Rows)
-            return mPathFinderMap.GetCell(x, y);
+            return mPathFinderMap.GetCell(x, y).Index;
 
         return Vector2Int.zero;
     }

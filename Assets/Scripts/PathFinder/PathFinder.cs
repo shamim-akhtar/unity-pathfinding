@@ -127,13 +127,13 @@ namespace GameAI
                 GCostFunction = cf;
             }
 
-            public Map<T> Map { get; private set; }
+            public IMap<T> Map { get; private set; }
 
             // Initialize a new search.
             // Note that a search can only be initialized if 
             // the path finder is not already running.
             // call Reset before initializing a new search.
-            public void Initialize(Map<T> map, T start, T goal)
+            public void Initialize(IMap<T> map, T start, T goal)
             {
                 if (Status == PathFinderStatus.RUNNING)
                 {

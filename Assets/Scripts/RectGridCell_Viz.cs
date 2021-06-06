@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using GameAI.PathFinding;
 
-public class RectGridCell : MonoBehaviour
+public class RectGridCell_Viz : MonoBehaviour
 {
     public TextMesh FCostText;
     public TextMesh HCostText;
@@ -11,7 +12,7 @@ public class RectGridCell : MonoBehaviour
     public SpriteRenderer InnerSprite;
     public SpriteRenderer OuterSprite;
 
-    public GameAI.PathFinding.LocationData<Vector2Int> mGridCellData;
+    public RectGridCell mGridCellData;
 
     // Start is called before the first frame update
     void Start()

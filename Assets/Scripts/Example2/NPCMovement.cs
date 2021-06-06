@@ -5,7 +5,7 @@ using GameAI.PathFinding;
 
 public class NPCMovement : MonoBehaviour
 {
-    public AStarPathFinder<Vector2Int> mPathFinder;
+    public AStarPathFinder<RectGridCell> mPathFinder;
 
     // We will need to have access to the map so that 
     // our path finder can work.
@@ -15,8 +15,7 @@ public class NPCMovement : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mPathFinder = new AStarPathFinder<Vector2Int>();
-        mPathFinder = new AStarPathFinder<Vector2Int>();
+        mPathFinder = new AStarPathFinder<RectGridCell>();
         mPathFinder.SetGCostFunction(RectGridMap.GetCostBetweenTwoCells);
         mPathFinder.SetHeuristicCostFunction(RectGridMap.GetManhattanCost);
 
@@ -37,7 +36,7 @@ public class NPCMovement : MonoBehaviour
 
     public void FindPathAndMoveTo(Transform destination)
     {
-        if (mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+        if (mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
         {
             Debug.Log("Path finder already running");
             return;
@@ -48,9 +47,12 @@ public class NPCMovement : MonoBehaviour
         StartCoroutine(Coroutine_FindPath(goal));
     }
 
-    IEnumerator Coroutine_FindPath(Vector2Int goal)
+    IEnumerator Coroutine_FindPath(Vector2Int goalIndex)
     {
-        Vector2Int start = mMap.GetWorldPosToGridIndex(transform.position);
+        Vector2Int startIndex = mMap.GetWorldPosToGridIndex(transform.position);
+        RectGridCell start = mGridViz.mRectGridMapMono.mPathFinderMap.GetCell(startIndex.x, startIndex.y);
+        RectGridCell goal = mGridViz.mRectGridMapMono.mPathFinderMap.GetCell(goalIndex.x, goalIndex.y);
+
 
         if (mGridViz != null)
         {
@@ -59,27 +61,27 @@ public class NPCMovement : MonoBehaviour
         // NOTE: Remember to call Reset as we are doing a new search.
         mPathFinder.Reset();
         mPathFinder.Initialize(mMap.mPathFinderMap, start, goal);
-        while(mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+        while(mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
         {
             mPathFinder.Step();
             yield return null;
         }
 
-        if(mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.FAILURE)
+        if(mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.FAILURE)
         {
             Debug.Log("Pathfinder could not find the path to the destination.");
             yield return null;
         }
 
-        if(mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.SUCCESS)
+        if(mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.SUCCESS)
         {
             List<Vector2Int> reverseIndices = new List<Vector2Int>();
 
             // accumulate the nodes.
-            PathFinderNode<Vector2Int> node = mPathFinder.CurrentNode;
+            PathFinderNode<RectGridCell> node = mPathFinder.CurrentNode;
             while(node != null)
             {
-                reverseIndices.Add(node.Location);
+                reverseIndices.Add(node.Location.Index);
                 node = node.Parent;
             }
 
