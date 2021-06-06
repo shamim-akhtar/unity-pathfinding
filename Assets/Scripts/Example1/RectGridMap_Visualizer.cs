@@ -30,6 +30,7 @@ public class RectGridMap_Visualizer : MonoBehaviour
     [HideInInspector]
     public float GridCellHeight = 1f;
     [HideInInspector]
+
     public RectGridMap mGrid;
 
     public Color COLOR_WALKABLE = new Color(1.0f, 1.0f, 1.0f, 0.0f);
@@ -136,26 +137,26 @@ public class RectGridMap_Visualizer : MonoBehaviour
             if (hit)
             {
                 GameObject obj = hit.transform.gameObject;
-                RectGridCell sc = obj.GetComponent<RectGridCell>();
+                RectGridCell_Viz sc = obj.GetComponent<RectGridCell_Viz>();
                 if (sc != null)
                 {
-                    int x = sc.mGridCellData.Location.x;
-                    int y = sc.mGridCellData.Location.y;
+                    int x = sc.mGridCellData.Index.x;
+                    int y = sc.mGridCellData.Index.y;
 
                     // because there is only one grid and one set of locations 
                     // so we just need to make the walkable/nonwalkable once.
                     sc.mGridCellData.IsWalkable = !sc.mGridCellData.IsWalkable;
                     foreach (RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
                     {
-                        LocationData<Vector2Int> ld = mGrid.GetLocationData(mGrid.GetCell(x, y));
+                        RectGridCell ld = mGrid.GetCell(x, y);
 
                         if (ld.IsWalkable)
                         {
-                            val.mGridCellSprites[x,y].GetComponent<RectGridCell>().SetInnerColor(COLOR_WALKABLE);
+                            val.mGridCellSprites[x,y].GetComponent<RectGridCell_Viz>().SetInnerColor(COLOR_WALKABLE);
                         }
                         else
                         {
-                            val.mGridCellSprites[x, y].GetComponent<RectGridCell>().SetInnerColor(COLOR_NON_WALKABLE);
+                            val.mGridCellSprites[x, y].GetComponent<RectGridCell_Viz>().SetInnerColor(COLOR_NON_WALKABLE);
                         }
                     }
                 }
@@ -170,7 +171,7 @@ public class RectGridMap_Visualizer : MonoBehaviour
         {
             foreach (RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
             {
-                if (val.mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+                if (val.mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
                 {
                     val.mPathFinder.Step();
                 }
@@ -185,12 +186,13 @@ public class RectGridMap_Visualizer : MonoBehaviour
         goalX = (int)(mGoalGameObject.transform.position.x / GridCellWidth);
         goalY = (int)(mGoalGameObject.transform.position.y / GridCellHeight);
 
-        Vector2Int start = new Vector2Int(startX, startY);
+        RectGridCell start = mGrid.GetCell(startX, startY);
+        RectGridCell goal = mGrid.GetCell(goalX, goalY);
 
         bool canInitialize = true;
         foreach(RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
         {
-            if (val.mPathFinder.Status == PathFinder<Vector2Int>.PathFinderStatus.RUNNING)
+            if (val.mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
             {
                 canInitialize = false;
                 break;
@@ -202,7 +204,7 @@ public class RectGridMap_Visualizer : MonoBehaviour
             foreach (RectGridMap_Visualizer_Algo val in mAlgoViz.Values)
             {
                 val.Reset();
-                val.mPathFinder.Initialize(mGrid, start, new Vector2Int(goalX, goalY));
+                val.mPathFinder.Initialize(mGrid, start, goal);
             }
         }
     }

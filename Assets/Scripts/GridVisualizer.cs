@@ -44,9 +44,9 @@ public class GridVisualizer : MonoBehaviour
                         0.0f),
                     Quaternion.identity);
                 obj.transform.parent = transform;
-                RectGridCell sc = obj.GetComponent<RectGridCell>();
+                RectGridCell_Viz sc = obj.GetComponent<RectGridCell_Viz>();
 
-                sc.mGridCellData = mRectGridMapMono.mPathFinderMap.GetLocationData(mRectGridMapMono.mPathFinderMap.GetCell(i, j));
+                sc.mGridCellData = mRectGridMapMono.mPathFinderMap.GetCell(i, j);
                 mGridCellSprites[i, j] = obj;
                 sc.SetInnerColor(COLOR_WALKABLE);
             }
@@ -62,10 +62,10 @@ public class GridVisualizer : MonoBehaviour
 
     #region Delegate implementations
 
-    public void OnChangeCurrentNode(PathFinderNode<Vector2Int> node)
+    public void OnChangeCurrentNode(PathFinderNode<RectGridCell> node)
     {
-        GameObject obj = mGridCellSprites[node.Location.x, node.Location.y];
-        RectGridCell cellScript = obj.GetComponent<RectGridCell>();
+        GameObject obj = mGridCellSprites[node.Location.Index.x, node.Location.Index.y];
+        RectGridCell_Viz cellScript = obj.GetComponent<RectGridCell_Viz>();
 
         if (cellScript)
         {
@@ -76,10 +76,10 @@ public class GridVisualizer : MonoBehaviour
         }
     }
 
-    public void OnAddToOpenList(PathFinderNode<Vector2Int> node)
+    public void OnAddToOpenList(PathFinderNode<RectGridCell> node)
     {
-        GameObject obj = mGridCellSprites[node.Location.x, node.Location.y];
-        RectGridCell cellScript = obj.GetComponent<RectGridCell>();
+        GameObject obj = mGridCellSprites[node.Location.Index.x, node.Location.Index.y];
+        RectGridCell_Viz cellScript = obj.GetComponent<RectGridCell_Viz>();
 
         if (cellScript)
         {
@@ -90,10 +90,10 @@ public class GridVisualizer : MonoBehaviour
         }
     }
 
-    public void OnAddToClosedList(PathFinderNode<Vector2Int> node)
+    public void OnAddToClosedList(PathFinderNode<RectGridCell> node)
     {
-        GameObject obj = mGridCellSprites[node.Location.x, node.Location.y];
-        RectGridCell cellScript = obj.GetComponent<RectGridCell>();
+        GameObject obj = mGridCellSprites[node.Location.Index.x, node.Location.Index.y];
+        RectGridCell_Viz cellScript = obj.GetComponent<RectGridCell_Viz>();
 
         if (cellScript)
         {
@@ -104,11 +104,12 @@ public class GridVisualizer : MonoBehaviour
         }
     }
 
-    public void OnDestinationFound(PathFinderNode<Vector2Int> node)
+    public void OnDestinationFound(PathFinderNode<RectGridCell> node)
     {
-        List<PathFinderNode<Vector2Int>> path = new List<PathFinderNode<Vector2Int>>();
+        List<PathFinderNode<RectGridCell>> path = new List<PathFinderNode<RectGridCell>>();
+        GameObject obj = mGridCellSprites[node.Location.Index.x, node.Location.Index.y];
 
-        PathFinderNode<Vector2Int> n = node;
+        PathFinderNode<RectGridCell> n = node;
         while (n != null)
         {
             path.Add(n);
@@ -118,8 +119,8 @@ public class GridVisualizer : MonoBehaviour
         for (int i = path.Count - 1; i >= 0; i = i - 1)
         {
             n = path[i];
-            GameObject obj = mGridCellSprites[n.Location.x, n.Location.y];
-            RectGridCell cellScript = obj.GetComponent<RectGridCell>();
+            obj = mGridCellSprites[n.Location.Index.x, n.Location.Index.y];
+            RectGridCell_Viz cellScript = obj.GetComponent<RectGridCell_Viz>();
 
             if (cellScript)
             {
@@ -137,8 +138,8 @@ public class GridVisualizer : MonoBehaviour
             for (int j = 0; j < mRectGridMapMono.mPathFinderMap.Rows; ++j)
             {
                 GameObject obj = mGridCellSprites[i, j];
-                RectGridCell sc = obj.GetComponent<RectGridCell>();
-                sc.mGridCellData = mRectGridMapMono.mPathFinderMap.GetLocationData(mRectGridMapMono.mPathFinderMap.GetCell(i, j));
+                RectGridCell_Viz sc = obj.GetComponent<RectGridCell_Viz>();
+                sc.mGridCellData = mRectGridMapMono.mPathFinderMap.GetCell(i, j);
 
                 if (sc.mGridCellData.IsWalkable)
                 {
@@ -167,11 +168,11 @@ public class GridVisualizer : MonoBehaviour
             if (hit)
             {
                 GameObject obj = hit.transform.gameObject;
-                RectGridCell sc = obj.GetComponent<RectGridCell>();
+                RectGridCell_Viz sc = obj.GetComponent<RectGridCell_Viz>();
                 if (sc != null)
                 {
-                    int x = sc.mGridCellData.Location.x;
-                    int y = sc.mGridCellData.Location.y;
+                    int x = sc.mGridCellData.Index.x;
+                    int y = sc.mGridCellData.Index.y;
 
                     // because there is only one grid and one set of locations 
                     // so we just need to make the walkable/nonwalkable once.
@@ -179,11 +180,11 @@ public class GridVisualizer : MonoBehaviour
 
                     if (sc.mGridCellData.IsWalkable)
                     {
-                        mGridCellSprites[x, y].GetComponent<RectGridCell>().SetInnerColor(COLOR_WALKABLE);
+                        mGridCellSprites[x, y].GetComponent<RectGridCell_Viz>().SetInnerColor(COLOR_WALKABLE);
                     }
                     else
                     {
-                        mGridCellSprites[x, y].GetComponent<RectGridCell>().SetInnerColor(COLOR_NON_WALKABLE);
+                        mGridCellSprites[x, y].GetComponent<RectGridCell_Viz>().SetInnerColor(COLOR_NON_WALKABLE);
                     }
                 }
             }

@@ -9,6 +9,15 @@ namespace GameAI
 {
     namespace PathFinding
     {
+        public class RectGridCell
+        {
+            public Vector2Int Index { get; set; }
+            public bool IsWalkable { get; set; }
+            public float Cost { get; set; }
+            public RectGridCell()
+            { }
+        }
+
         /// <summary>
         /// This is a Rectangular Grid implementatation of the Map.
         /// Whenever you are using a Rectangular (or square) grid 
@@ -19,7 +28,7 @@ namespace GameAI
         /// There are other example implementation of map grid as well.
         /// I will implement a few other types of map grids for demonstration.
         /// </summary>
-        public class RectGridMap : Map<Vector2Int>
+        public class RectGridMap : IMap<RectGridCell>
         {
             // the max number of colums in the grid.
             protected int mX;
@@ -29,6 +38,7 @@ namespace GameAI
             // the 2d array of Vecto2Int.
             // This stucture stores the 2d indices of the grid cells.
             protected Vector2Int[,] mIndices;
+            protected RectGridCell[,] mMapCell;
 
             public int Cols { get { return mX; } }
             public int Rows { get { return mY; } }
@@ -37,26 +47,26 @@ namespace GameAI
             public int NumY { get { return mY; } }
 
             // Construct a grid with the max cols and rows.
-            public RectGridMap(int numX, int numY) : base()
+            public RectGridMap(int numX, int numY)
             {
                 mX = numX;
                 mY = numY;
 
                 mIndices = new Vector2Int[mX, mY];
+                mMapCell = new RectGridCell[mX, mY];
 
-                // create all the grid cells (location data) with default values.
+                // create all the grid cells (Index data) with default values.
                 for (int i = 0; i < mX; ++i)
                 {
                     for (int j = 0; j < mY; ++j)
                     {
-                        LocationData<Vector2Int> data = new LocationData<Vector2Int>();
+                        RectGridCell data = new RectGridCell();
                         data.Cost = 1.0f;
                         data.IsWalkable = true;
 
-                        mIndices[i,j] = new Vector2Int(i, j); 
-                        data.Location = mIndices[i, j];
-
-                        mLocations.Add(data.Location, data);
+                        mIndices[i,j] = new Vector2Int(i, j);
+                        mMapCell[i, j] = data;
+                        data.Index = mIndices[i, j];
                     }
                 }                
             }
@@ -75,10 +85,7 @@ namespace GameAI
                     {
                         for (int j = 0; j < map.mY; ++j)
                         {
-                            //bf.Serialize(file, map.mIndices[i, j].x);
-                            //bf.Serialize(file, map.mIndices[i, j].y);
-
-                            LocationData<Vector2Int> data = map.GetLocationData(map.mIndices[i, j]);
+                            RectGridCell data = map.mMapCell[i, j];
 
                             bf.Serialize(file, data.Cost);
                             bf.Serialize(file, data.IsWalkable);
@@ -120,7 +127,7 @@ namespace GameAI
                         {
                             for (int j = 0; j < map.mY; ++j)
                             {
-                                LocationData<Vector2Int> data = map.GetLocationData(map.mIndices[i, j]);
+                                RectGridCell data = map.mMapCell[i, j];
 
                                 data.Cost = (float)bf.Deserialize(file);
                                 data.IsWalkable = (bool)bf.Deserialize(file);
@@ -130,7 +137,7 @@ namespace GameAI
                     catch (SerializationException e)
                     {
                         Debug.Log("Failed to load map. Reason: " + e.Message);
-                        throw;
+                        map = null;
                     }
                     finally
                     {
@@ -140,20 +147,20 @@ namespace GameAI
                 return map;
             }
 
-            public Vector2Int GetCell(int i, int j)
+            public RectGridCell GetCell(int i, int j)
             {
-                return mIndices[i, j];
+                return mMapCell[i, j];
             }
 
             // Get the neighbours. This method must be implemented for 
             // any type of grid that you create. For a rectangular
             // grid it is getting the 8 adjacent indices
-            public override List<Vector2Int> GetNeighbours(Vector2Int loc)
+            public List<RectGridCell> GetNeighbours(RectGridCell loc)
             {
-                List<Vector2Int> neighbours = new List<Vector2Int>();
+                List<RectGridCell> neighbours = new List<RectGridCell>();
 
-                int x = loc.x;
-                int y = loc.y;
+                int x = loc.Index.x;
+                int y = loc.Index.y;
 
                 // Check up.
                 if (y < mY - 1)
@@ -161,11 +168,9 @@ namespace GameAI
                     int i = x;
                     int j = y + 1;
 
-                    Vector2Int v = mIndices[i, j];
-
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i,j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
                 // Check top-right
@@ -174,11 +179,9 @@ namespace GameAI
                     int i = x + 1;
                     int j = y + 1;
 
-                    Vector2Int v = mIndices[i,j];
-
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i, j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
                 // Check right
@@ -187,11 +190,9 @@ namespace GameAI
                     int i = x + 1;
                     int j = y;
 
-                    Vector2Int v = mIndices[i,j];
-
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i, j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
                 // Check right-down
@@ -200,11 +201,9 @@ namespace GameAI
                     int i = x + 1;
                     int j = y - 1;
 
-                    Vector2Int v = mIndices[i, j];
-
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i, j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
                 // Check down
@@ -213,11 +212,9 @@ namespace GameAI
                     int i = x;
                     int j = y - 1;
 
-                    Vector2Int v = mIndices[i, j];
-
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i, j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
                 // Check down-left
@@ -226,11 +223,9 @@ namespace GameAI
                     int i = x - 1;
                     int j = y - 1;
 
-                    Vector2Int v = mIndices[i,j];
-
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i, j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
                 // Check left
@@ -241,9 +236,9 @@ namespace GameAI
 
                     Vector2Int v = mIndices[i, j];
 
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i, j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
                 // Check left-top
@@ -252,25 +247,26 @@ namespace GameAI
                     int i = x - 1;
                     int j = y + 1;
 
-                    Vector2Int v = mIndices[i,j];
-
-                    if (mLocations[v].IsWalkable)
+                    if (mMapCell[i, j].IsWalkable)
                     {
-                        neighbours.Add(v);
+                        neighbours.Add(mMapCell[i, j]);
                     }
                 }
 
                 return neighbours;
             }
 
-            public static float GetManhattanCost(Vector2Int a, Vector2Int b)
+            public static float GetManhattanCost(RectGridCell a, RectGridCell b)
             {
-                return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+                return Mathf.Abs(a.Index.x - b.Index.x) + Mathf.Abs(a.Index.y - b.Index.y);
             }
 
-            public static float GetCostBetweenTwoCells(Vector2Int a, Vector2Int b)
+            public static float GetCostBetweenTwoCells(RectGridCell a, RectGridCell b)
             {
-                return Mathf.Sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y));
+                return Mathf.Sqrt(
+                        (a.Index.x - b.Index.x) * (a.Index.x - b.Index.x) + 
+                        (a.Index.y - b.Index.y) * (a.Index.y - b.Index.y)
+                    );
             }
         }
     }
