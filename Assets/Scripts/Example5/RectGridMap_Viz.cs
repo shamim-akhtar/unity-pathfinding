@@ -175,6 +175,22 @@ public class RectGridMap_Viz : RectGridMapMono
         }
     }
 
+    public void MakeAllCellsWalkable()
+    {
+        for (int i = 0; i < mPathFinderMap.Cols; ++i)
+        {
+            for (int j = 0; j < mPathFinderMap.Rows; ++j)
+            {
+                GameObject obj = mGridCellSprites[i, j];
+                RectGridCell_Viz sc = obj.GetComponent<RectGridCell_Viz>();
+                sc.mGridCellData = mPathFinderMap.GetCell(i, j);
+                sc.mGridCellData.IsWalkable = true;
+                sc.SetInnerColor(COLOR_WALKABLE);
+                sc.ClearTexts();
+            }
+        }
+    }
+
     public bool RayCastAndSetGoal()
     {
         Vector2 rayPos = new Vector2(

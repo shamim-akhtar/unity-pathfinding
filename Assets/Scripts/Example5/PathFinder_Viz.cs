@@ -5,7 +5,7 @@ using GameAI.PathFinding;
 
 public class PathFinder_Viz : MonoBehaviour
 {
-    public AStarPathFinder<GameAI.PathFinding.RectGridCell> mPathFinder;
+    public PathFinder<RectGridCell> mPathFinder;
     public RectGridMap_Viz mGridViz;
 
     private bool mReachedGoal = false;
@@ -13,7 +13,34 @@ public class PathFinder_Viz : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mPathFinder = new AStarPathFinder<GameAI.PathFinding.RectGridCell>();
+    }
+
+    public void SetPathFindingAlgorithm(PathFindingAlgorithm algo)
+    {
+        switch(algo)
+        {
+            case PathFindingAlgorithm.AStar:
+                {
+                    mPathFinder = new AStarPathFinder<RectGridCell>();
+                    break;
+                }
+            case PathFindingAlgorithm.Dijkstra:
+                {
+                    mPathFinder = new DijkstraPathFinder<RectGridCell>();
+                    break;
+                }
+            case PathFindingAlgorithm.Greedy_Best_First:
+                {
+                    mPathFinder = new GreedyPathFinder<RectGridCell>();
+                    break;
+                }
+        }
+
+        InitPathFinder();
+    }
+
+    private void InitPathFinder()
+    {
         mPathFinder.SetGCostFunction(RectGridMap.GetCostBetweenTwoCells);
         mPathFinder.SetHeuristicCostFunction(RectGridMap.GetManhattanCost);
 
@@ -26,29 +53,13 @@ public class PathFinder_Viz : MonoBehaviour
         }
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if(Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.RUNNING)
-            {
-                mPathFinder.Step();
-            }
-
-            if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.FAILURE)
-            {
-                Debug.Log("Pathfinder could not find the path to the destination.");
-            }
-            if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.SUCCESS)
-            {
-            }
-        }
-    }
-
     public void SetGoal(Transform destination)
     {
-        if (mPathFinder.Status == PathFinder<GameAI.PathFinding.RectGridCell>.PathFinderStatus.RUNNING)
+        if(mPathFinder == null)
+        {
+            SetPathFindingAlgorithm(PathFindingAlgorithm.AStar);
+        }
+        if (mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
         {
             Debug.Log("Path finder already running");
             return;
@@ -57,8 +68,8 @@ public class PathFinder_Viz : MonoBehaviour
         Vector2Int goalIndex = mGridViz.GetWorldPosToGridIndex(destination.position);
         Vector2Int startIndex = mGridViz.GetWorldPosToGridIndex(transform.position);
 
-        GameAI.PathFinding.RectGridCell start = mGridViz.mPathFinderMap.GetCell(startIndex.x, startIndex.y);
-        GameAI.PathFinding.RectGridCell goal = mGridViz.mPathFinderMap.GetCell(goalIndex.x, goalIndex.y);
+        RectGridCell start = mGridViz.mPathFinderMap.GetCell(startIndex.x, startIndex.y);
+        RectGridCell goal = mGridViz.mPathFinderMap.GetCell(goalIndex.x, goalIndex.y);
 
         if (mGridViz != null)
         {

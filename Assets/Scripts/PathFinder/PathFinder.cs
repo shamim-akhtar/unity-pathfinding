@@ -49,6 +49,11 @@ namespace GameAI
             public DelegateOnChangeCurrentNode onAddToClosedList;
             public delegate void DelegateOnDestinationFound(PathFinderNode<T> node);
             public DelegateOnChangeCurrentNode onDestinationFound;
+            public delegate void DelegateNoArgument();
+            public DelegateNoArgument onStarted;
+            public DelegateNoArgument onRunning;
+            public DelegateNoArgument onFailure;
+            public DelegateNoArgument onSuccess;
             #endregion
 
             public enum PathFinderStatus
@@ -151,7 +156,7 @@ namespace GameAI
 
                 CurrentNode = mRoot;
                 onChangeCurrentNode?.Invoke(CurrentNode);
-
+                onStarted?.Invoke();
                 Status = PathFinderStatus.RUNNING;
             }
 
@@ -168,6 +173,7 @@ namespace GameAI
                 {
                     // we have exhausted our search. No solution is found.
                     Status = PathFinderStatus.FAILURE;
+                    onFailure?.Invoke();
                     return Status;
                 }
 
@@ -187,6 +193,7 @@ namespace GameAI
                     Debug.Log("Found destination.");
                     Status = PathFinderStatus.SUCCESS;
                     onDestinationFound?.Invoke(CurrentNode);
+                    onSuccess?.Invoke();
                     return Status;
                 }
 
@@ -199,6 +206,7 @@ namespace GameAI
                 }
 
                 Status = PathFinderStatus.RUNNING;
+                onRunning?.Invoke();
                 return Status;
             }
 

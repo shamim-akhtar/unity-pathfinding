@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using Patterns;
 using Lean.Gui;
+using GameAI.PathFinding;
 
 public class PathFinderDemo : MonoBehaviour
 {
@@ -23,6 +24,7 @@ public class PathFinderDemo : MonoBehaviour
     public Text mModeTypeText;
     public Text mInteractiveText;
     public Text mAlgorithmText;
+    public Button mClearGridButton;
     public Button mPlayButton;
     public Button mStepButton;
     public Button mResetButton;
@@ -35,14 +37,13 @@ public class PathFinderDemo : MonoBehaviour
     #endregion
 
     private FiniteStateMachine mFsm = new FiniteStateMachine();
+    int mPathFindingAlgo = 0; // Astar, 1 = Djikstra and 2 = Greedy best-first
 
     void Start()
     {
         mFsm.Add(new State((int)ModeType.EDITOR, OnEnterEditor, OnExitEditor, OnUpdateEditor));
         mFsm.Add(new State((int)ModeType.PLAYER, OnEnterPlayer, OnExitPlayer, OnUpdatePlayer));
         mFsm.SetCurrentState((int)ModeType.PLAYER);
-
-        //SetPathFindingMode(mPathFindingMode);
     }
 
     void Update()
@@ -108,19 +109,50 @@ public class PathFinderDemo : MonoBehaviour
 
     public void OnSelectAlgorithm()
     {
-        int state = mLeanSwitchAlgo.State;
-        if (state == 0)
+        if(mPathFinder_Viz.mPathFinder != null && mPathFinder_Viz.mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
+        {
+            // disable selection when running.
+            mLeanSwitchAlgo.State = (int)mPathFindingAlgo;
+            return;
+        }
+        mPathFindingAlgo = mLeanSwitchAlgo.State;
+        if (mPathFindingAlgo == 0)
         {
             mAlgorithmText.text = "Astar";
         }
-        if(state == 1)
+        if(mPathFindingAlgo == 1)
         {
             mAlgorithmText.text = "Dijkstra";
         }
-        if (state == 2)
+        if (mPathFindingAlgo == 2)
         {
             mAlgorithmText.text = "Greedy Best-First";
         }
+        mPathFinder_Viz.SetPathFindingAlgorithm((PathFindingAlgorithm)mPathFindingAlgo);
+        mPathFinder_Viz.mPathFinder.onFailure = OnPathFindingCompleted;
+        mPathFinder_Viz.mPathFinder.onSuccess = OnPathFindingCompleted;
+        mPathFinder_Viz.mPathFinder.onStarted = OnPathFindingStarted;
+    }
+
+    void OnPathFindingStarted()
+    {
+        //// you cannot switch algorithm when path finding is running.
+        //mLeanSwitchAlgo.gameObject.SetActive(false);
+        //mResetButton.gameObject.SetActive(false);
+        Debug.Log("Disabled switch.");
+    }
+
+    void OnPathFindingCompleted()
+    {
+        //// you cannot switch algorithm when path finding is running.
+        //mLeanSwitchAlgo.gameObject.SetActive(true);
+        //mResetButton.gameObject.SetActive(true);
+        Debug.Log("Enabled switch.");
+    }
+
+    public void ClearGrid()
+    {
+        mRectGridMap_Vis.MakeAllCellsWalkable();
     }
 
     #region FSM delegate implementation
@@ -128,12 +160,16 @@ public class PathFinderDemo : MonoBehaviour
     {
         if(mModeTypeText != null)
         {
-            mModeTypeText.text = "Editor Mode";
+            mModeTypeText.text = "Editing Mode";
             mToggleInteractive.SetActive(false);
             mPlayButton.gameObject.SetActive(false);
             mStepButton.gameObject.SetActive(false);
             mResetButton.gameObject.SetActive(false);
             mRectGridMap_Vis.ResetPathFindingInfo();
+            mLeanSwitchAlgo.gameObject.SetActive(false);
+            mAlgorithmText.gameObject.SetActive(false);
+            mInteractiveText.gameObject.SetActive(false);
+            mClearGridButton.gameObject.SetActive(true);
         }
     }
     void OnExitEditor()
@@ -153,9 +189,14 @@ public class PathFinderDemo : MonoBehaviour
     {
         if (mModeTypeText != null)
         {
-            mModeTypeText.text = "Player Mode";
+            mModeTypeText.text = "Pathfinding Mode";
             mToggleInteractive.SetActive(true);
             SetPathFindingMode(mPathFindingMode);
+            mLeanSwitchAlgo.gameObject.SetActive(true);
+            mAlgorithmText.gameObject.SetActive(true);
+            mInteractiveText.gameObject.SetActive(true);
+            mClearGridButton.gameObject.SetActive(false);
+            OnSelectAlgorithm();
         }
     }
     void OnExitPlayer()
