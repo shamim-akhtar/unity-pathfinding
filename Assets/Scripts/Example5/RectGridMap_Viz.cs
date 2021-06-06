@@ -24,6 +24,9 @@ public class RectGridMap_Viz : RectGridMapMono
     public Color COLOR_SOLUTION = new Color(0.0f, 1.0f, 1.0f, 0.7f);
     public Color COLOR_DESTINATION = new Color(0.0f, 1.0f, 0.0f, 0.7f);
     public Color COLOR_START = new Color(0.0f, 1.0f, 1.0f, 0.7f);
+    public Color COLOR_GCOST = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+    public Color COLOR_HCOST = new Color(0.0f, 0.0f, 0.0f, 1.0f);
+    public Color COLOR_FCOST = new Color(1.0f, 0.0f, 0.0f, 1.0f);
 
     // The sprites to represent each grid cell.
     [HideInInspector]
@@ -47,6 +50,10 @@ public class RectGridMap_Viz : RectGridMapMono
 
                 sc.mGridCellData = mPathFinderMap.GetCell(i, j);
                 mGridCellSprites[i, j] = obj;
+
+                sc.SetHCostColor(COLOR_HCOST);
+                sc.SetFCostColor(COLOR_FCOST);
+                sc.SetGCostColor(COLOR_GCOST);
             }
         }
 
