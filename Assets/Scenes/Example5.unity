@@ -958,7 +958,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -2413806693520163455, guid: ebe73ca9363db456bacf42c025bb4847, type: 3}
   m_Color: {r: 0.7830189, g: 0.59367836, b: 0.40997687, a: 1}
   m_FlipX: 0
@@ -1386,7 +1386,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 12
+  orthographic size: 5.5
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -1410,7 +1410,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.5, y: 9.5, z: -10}
+  m_LocalPosition: {x: 6, y: 4.5, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -5800,7 +5800,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: -1
   m_Sprite: {fileID: 21300000, guid: d87af2363c918744eb45b45157ea32fe, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
@@ -5820,8 +5820,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1986478165}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 9.5, y: 9.5, z: 1}
-  m_LocalScale: {x: 20, y: 20, z: 1}
+  m_LocalPosition: {x: 4.5, y: 4.5, z: 1}
+  m_LocalScale: {x: 10, y: 10, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 1
@@ -5864,9 +5864,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41890a19975a28849974db62fcc0b067, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  SceneName: PathFindingDemo
-  Cols: 20
-  Rows: 20
+  SceneName: example5
+  Cols: 10
+  Rows: 10
   PrefabCell: {fileID: 6532666301785897802, guid: 78b39b19fbe98ec47989c14c11c250d1, type: 3}
   mGoalObject: {fileID: 431261575}
   GridCellWidth: 1
