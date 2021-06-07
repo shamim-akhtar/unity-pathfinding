@@ -261,6 +261,11 @@ namespace GameAI
                 return Mathf.Abs(a.Index.x - b.Index.x) + Mathf.Abs(a.Index.y - b.Index.y);
             }
 
+            public static float GetEuclideanCost(RectGridCell a, RectGridCell b)
+            {
+                return GetCostBetweenTwoCells(a, b);
+            }
+
             public static float GetCostBetweenTwoCells(RectGridCell a, RectGridCell b)
             {
                 return Mathf.Sqrt(

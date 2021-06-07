@@ -57,4 +57,19 @@ public class RectGridCell_Viz : MonoBehaviour
         HCostText.text = "";
         FCostText.text = "";
     }
+
+    public void SetFCostColor(Color color)
+    {
+        FCostText.color = color;
+    }
+
+    public void SetGCostColor(Color color)
+    {
+        GCostText.color = color;
+    }
+
+    public void SetHCostColor(Color color)
+    {
+        HCostText.color = color;
+    }
 }
