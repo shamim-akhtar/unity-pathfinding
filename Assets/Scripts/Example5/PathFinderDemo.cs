@@ -30,7 +30,22 @@ public class PathFinderDemo : MonoBehaviour
     public Button mResetButton;
     public LeanSwitch mLeanSwitchAlgo;
 
+    public GameObject mCostPanel;
+    public Text mFCostText;
+    public Text mGCostText;
+    public Text mHCostText;
+
     public GameObject mToggleInteractive;
+    public LeanToggle mToggleCostFunction;
+    public Text mCostFunctionText;
+
+    private PathFinder<RectGridCell>.CostFunction mCostFunction;
+    enum CostFunctionType
+    {
+        MANHATTAN,
+        EUCLIDEN,
+    }
+    CostFunctionType mCostFunctionType = CostFunctionType.MANHATTAN;
 
     public RectGridMap_Viz mRectGridMap_Vis;
     public PathFinder_Viz mPathFinder_Viz;
@@ -92,6 +107,49 @@ public class PathFinderDemo : MonoBehaviour
         }
     }
 
+    public void SetToggleCostFunction()
+    {
+        if (mPathFinder_Viz.mPathFinder == null)
+            return;
+        if (mPathFinder_Viz.mPathFinder != null && mPathFinder_Viz.mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
+        {
+            // disable selection when running.
+            if (mToggleCostFunction.On)
+                mToggleCostFunction.TurnOff();
+            else
+                mToggleCostFunction.TurnOn();
+            return;
+        }
+
+        if (mCostFunctionType == CostFunctionType.MANHATTAN)
+        {
+            mCostFunctionType = CostFunctionType.EUCLIDEN;
+            mCostFunctionText.text = "Euclidean Cost";
+        }
+        else
+        {
+            mCostFunctionType = CostFunctionType.MANHATTAN;
+            mCostFunctionText.text = "Manhattan Cost";
+        }
+        SetCostFunction(mCostFunctionType);
+    }
+    void SetCostFunction(CostFunctionType cf)
+    {
+        switch (cf)
+        {
+            case CostFunctionType.MANHATTAN:
+                {
+                    mPathFinder_Viz.mPathFinder.SetHeuristicCostFunction(RectGridMap.GetManhattanCost);
+                    break;
+                }
+            case CostFunctionType.EUCLIDEN:
+                {
+                    mPathFinder_Viz.mPathFinder.SetHeuristicCostFunction(RectGridMap.GetEuclideanCost);
+                    break;
+                }
+        }
+    }
+
     public void OnPlayPathFinding()
     {
         mPathFinder_Viz.FindPath_Play();
@@ -104,6 +162,9 @@ public class PathFinderDemo : MonoBehaviour
 
     public void OnResetPathFinding()
     {
+        mFCostText.text = "";
+        mGCostText.text = "";
+        mHCostText.text = "";
         mRectGridMap_Vis.ResetPathFindingInfo();
     }
 
@@ -119,19 +180,24 @@ public class PathFinderDemo : MonoBehaviour
         if (mPathFindingAlgo == 0)
         {
             mAlgorithmText.text = "Astar";
+            mAlgorithmText.alignment = TextAnchor.MiddleLeft;
         }
         if(mPathFindingAlgo == 1)
         {
             mAlgorithmText.text = "Dijkstra";
+            mAlgorithmText.alignment = TextAnchor.MiddleCenter;
         }
         if (mPathFindingAlgo == 2)
         {
             mAlgorithmText.text = "Greedy Best-First";
+            mAlgorithmText.alignment = TextAnchor.MiddleRight;
         }
         mPathFinder_Viz.SetPathFindingAlgorithm((PathFindingAlgorithm)mPathFindingAlgo);
-        mPathFinder_Viz.mPathFinder.onFailure = OnPathFindingCompleted;
-        mPathFinder_Viz.mPathFinder.onSuccess = OnPathFindingCompleted;
-        mPathFinder_Viz.mPathFinder.onStarted = OnPathFindingStarted;
+        SetCostFunction(mCostFunctionType);
+        mPathFinder_Viz.mPathFinder.onFailure += OnPathFindingCompleted;
+        mPathFinder_Viz.mPathFinder.onSuccess += OnPathFindingCompleted;
+        mPathFinder_Viz.mPathFinder.onStarted += OnPathFindingStarted;
+        mPathFinder_Viz.mPathFinder.onChangeCurrentNode += OnChangeCurrentNode;
     }
 
     void OnPathFindingStarted()
@@ -148,6 +214,13 @@ public class PathFinderDemo : MonoBehaviour
         //mLeanSwitchAlgo.gameObject.SetActive(true);
         //mResetButton.gameObject.SetActive(true);
         Debug.Log("Enabled switch.");
+    }
+
+    public void OnChangeCurrentNode(PathFinderNode<RectGridCell> node)
+    {
+        mFCostText.text = node.Fcost.ToString("F2");
+        mGCostText.text = node.GCost.ToString("F2");
+        mHCostText.text = node.Hcost.ToString("F2");
     }
 
     public void ClearGrid()
@@ -170,6 +243,8 @@ public class PathFinderDemo : MonoBehaviour
             mAlgorithmText.gameObject.SetActive(false);
             mInteractiveText.gameObject.SetActive(false);
             mClearGridButton.gameObject.SetActive(true);
+            mToggleCostFunction.gameObject.SetActive(false);
+            mCostPanel.SetActive(false);
         }
     }
     void OnExitEditor()
@@ -196,6 +271,8 @@ public class PathFinderDemo : MonoBehaviour
             mAlgorithmText.gameObject.SetActive(true);
             mInteractiveText.gameObject.SetActive(true);
             mClearGridButton.gameObject.SetActive(false);
+            mCostPanel.SetActive(true);
+            mToggleCostFunction.gameObject.SetActive(true);
             OnSelectAlgorithm();
         }
     }
