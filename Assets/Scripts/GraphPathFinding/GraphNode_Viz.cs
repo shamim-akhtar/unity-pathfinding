@@ -6,16 +6,22 @@ using GameAI.PathFinding;
 public class GraphNode_Viz : MonoBehaviour
 {
     public GraphNode<GraphNodeData> Node { get; set; }
+    public SpriteRenderer mInnerSprite;
 
-    // Start is called before the first frame update
-    void Start()
+    private Stack<Color> mColorStack = new Stack<Color>();
+    public void SetColor(Color color)
     {
-        
+        mColorStack.Push(color);
+        mInnerSprite.color = mColorStack.Peek();
+    }
+    public void UnSetColor()
+    {
+        mColorStack.Pop();
+        mInnerSprite.color = mColorStack.Peek();
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Start()
     {
-        
+        SetColor(Color.gray);
     }
 }

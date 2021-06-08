@@ -19,4 +19,9 @@ public class GraphNodeData
         Name = name;
         Point = new Vector2(x, y);
     }
+
+    public static int Distance(GraphNodeData a, GraphNodeData b)
+    {
+        return (int)(a.Point - b.Point).sqrMagnitude;
+    }
 }

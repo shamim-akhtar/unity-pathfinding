@@ -133,6 +133,7 @@ GameObject:
   m_Component:
   - component: {fileID: 70941732}
   - component: {fileID: 70941731}
+  - component: {fileID: 70941733}
   m_Layer: 0
   m_Name: GraphMap_Viz_Editor
   m_TagString: Untagged
@@ -157,6 +158,7 @@ MonoBehaviour:
   mSpacing: 10
   PrefabGraphNode: {fileID: 5967998560493205313, guid: 5fae317cf5fd1b54f8a6900c1c3a0c3d, type: 3}
   ParentForGraphNodes: {fileID: 1243533578}
+  mLineFactory: {fileID: 70941733}
 --- !u!4 &70941732
 Transform:
   m_ObjectHideFlags: 0
@@ -172,6 +174,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &70941733
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 70941730}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 814b7461d62334e188b3a43681f700b0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  linePrefab: {fileID: 1000013289361224, guid: 67db316532143b248b19bb424019b871, type: 3}
+  maxLines: 50
 --- !u!1 &386890100
 GameObject:
   m_ObjectHideFlags: 0

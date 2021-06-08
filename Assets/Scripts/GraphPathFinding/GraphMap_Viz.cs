@@ -13,11 +13,11 @@ public class GraphMap_Viz : MonoBehaviour
 
     private SampleGraph mGraph;
 
-    void CreateGraphViz(Graph<GraphNode<GraphNodeData>> graph)
+    void CreateGraphViz(Graph<GraphNodeData> graph)
     {
         for(int i = 0; i < graph.Nodes.Count; ++i)
         {
-            GraphNodeData d = graph.Nodes[i].Value.Value;
+            GraphNodeData d = graph.Nodes[i].Value;
             Vector2 p = d.Point;
             GameObject obj = Instantiate(PrefabGraphNode, new Vector3(d.Point.x, d.Point.y, 0.0f), Quaternion.identity);
             obj.transform.SetParent(mMarkerGroup.transform);

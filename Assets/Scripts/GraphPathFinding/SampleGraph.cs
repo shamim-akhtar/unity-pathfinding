@@ -7,7 +7,7 @@ using Oware;
 /// <summary>
 /// A sample graph for creating and testing a graph based path finding.
 /// </summary>
-public class SampleGraph : Graph<GraphNode<GraphNodeData>>
+public class SampleGraph : Graph<GraphNodeData>
 {
     public Rect Extent { get { return mExtent; } }
     private Rect mExtent;
@@ -24,7 +24,7 @@ public class SampleGraph : Graph<GraphNode<GraphNodeData>>
         float maxY = -Mathf.Infinity;
         for (int i = 0; i < Nodes.Count; ++i)
         {
-            GraphNodeData d = Nodes[i].Value.Value;
+            GraphNodeData d = Nodes[i].Value;
             Vector2 p = d.Point;
 
             if (minX > p.x) minX = p.x;
@@ -106,7 +106,7 @@ public class SampleGraph : Graph<GraphNode<GraphNodeData>>
         LatLngUTMConverter mLatLonConverter = new LatLngUTMConverter("WGS 84");
         for(int i = 0; i < graph.Nodes.Count; i++)
         {
-            GraphNodeData d = graph.Nodes[i].Value.Value;
+            GraphNodeData d = graph.Nodes[i].Value;
 
             LatLngUTMConverter.UTMResult res = mLatLonConverter.convertLatLngToUtm(d.Point.x, d.Point.y);
             float e = (float)res.Easting;
