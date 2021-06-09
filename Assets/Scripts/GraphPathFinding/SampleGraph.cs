@@ -73,7 +73,7 @@ public class SampleGraph : Graph<GraphNodeData>
             // the edges.
             for (int i = 0; i < graph.Nodes.Count; ++i)
             {
-                List<Node<GraphNodeData>> neighbours = graph.Nodes[i].Neighbors;
+                List<GraphNode<GraphNodeData>> neighbours = graph.Nodes[i].Neighbors;
                 if (neighbours != null)
                 {
                     bf.Serialize(file, neighbours.Count);

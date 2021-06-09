@@ -6,19 +6,11 @@ namespace GameAI
 {
     namespace PathFinding
     {
-        public class Node<T>
+        public class GraphNode<T>
         {
-            // Private member-variables
+            private List<float> costs;
             private T data;
-            private List<Node<T>> neighbors = null;
-
-            public Node() { }
-            public Node(T data) : this(data, null) { }
-            public Node(T data, List<Node<T>> neighbors)
-            {
-                this.data = data;
-                this.neighbors = neighbors;
-            }
+            private List<GraphNode<T>> neighbors = null;
 
             public T Value
             {
@@ -32,35 +24,22 @@ namespace GameAI
                 }
             }
 
-            public List<Node<T>> Neighbors
+            public GraphNode() { }
+            public GraphNode(T value) { }
+            public GraphNode(T value, List<GraphNode<T>> neighbors) { }
+
+            public List<GraphNode<T>> Neighbors
             {
                 get
                 {
+                    if (neighbors == null)
+                        neighbors = new List<GraphNode<T>>();
+
                     return neighbors;
                 }
                 set
                 {
                     neighbors = value;
-                }
-            }
-        }
-
-        public class GraphNode<T> : Node<T>
-        {
-            private List<float> costs;
-
-            public GraphNode() : base() { }
-            public GraphNode(T value) : base(value) { }
-            public GraphNode(T value, List<Node<T>> neighbors) : base(value, neighbors) { }
-
-            new public List<Node<T>> Neighbors
-            {
-                get
-                {
-                    if (base.Neighbors == null)
-                        base.Neighbors = new List<Node<T>>();
-
-                    return base.Neighbors;
                 }
             }
 
@@ -76,15 +55,15 @@ namespace GameAI
             }
         }
 
-        public class Graph<T> : IMap<Node<T>>
+        public class Graph<T> : IMap<GraphNode<T>>
         {
-            private List<Node<T>> nodeSet;
+            private List<GraphNode<T>> nodeSet;
 
             public Graph() : this(null) { }
-            public Graph(List<Node<T>> nodeSet)
+            public Graph(List<GraphNode<T>> nodeSet)
             {
                 if (nodeSet == null)
-                    this.nodeSet = new List<Node<T>>();
+                    this.nodeSet = new List<GraphNode<T>>();
                 else
                     this.nodeSet = nodeSet;
             }
@@ -116,10 +95,10 @@ namespace GameAI
                 to.Costs.Add(cost);
             }
 
-            public static Node<T> FindByValue(List<Node<T>> nodes, T value)
+            public static GraphNode<T> FindByValue(List<GraphNode<T>> nodes, T value)
             {
                 // search the list for the value
-                foreach (Node<T> node in nodes)
+                foreach (GraphNode<T> node in nodes)
                     if (node.Value.Equals(value))
                         return node;
 
@@ -158,7 +137,7 @@ namespace GameAI
                 return true;
             }
 
-            public List<Node<T>> Nodes
+            public List<GraphNode<T>> Nodes
             {
                 get
                 {
@@ -170,7 +149,7 @@ namespace GameAI
             {
                 get { return nodeSet.Count; }
             }
-            public List<Node<T>> GetNeighbours(Node<T> loc)
+            public List<GraphNode<T>> GetNeighbours(GraphNode<T> loc)
             {
                 return loc.Neighbors;
             }
