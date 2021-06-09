@@ -19,6 +19,14 @@ public class SampleGraph : Graph<GraphNodeData>
     {
     }
 
+    /// <summary>
+    /// Remove nodes that do not have any neighbours.
+    /// </summary>
+    public void RemoveDanglingNodes()
+    {
+
+    }
+
     public void CalculateExtent()
     {
         float minX = Mathf.Infinity;
@@ -103,19 +111,17 @@ public class SampleGraph : Graph<GraphNodeData>
     }
 
     // static method to load a map from a file.
-    public static SampleGraph Load(string filen)
+    public static bool Load(SampleGraph graph, string filen)
     {
         string filename = Application.persistentDataPath + "/" + filen;
-        SampleGraph graph = null;
         if (!File.Exists(filename))
-            return null;
+            return false;
 
         BinaryFormatter bf = new BinaryFormatter();
         using (FileStream file = new FileStream(filename, FileMode.Open))
         {
             try
             {
-                graph = new SampleGraph(); 
                 int nodeCount = 0;
                 nodeCount = (int)bf.Deserialize(file);
                 for (int i = 0; i < nodeCount; ++i)
@@ -145,14 +151,31 @@ public class SampleGraph : Graph<GraphNodeData>
             catch (SerializationException e)
             {
                 Debug.Log("Failed to load graph map. Reason: " + e.Message);
-                graph = null;
             }
             finally
             {
                 file.Close();
             }
         }
-        return graph;
+        return true;
+    }
+
+    public static float GetManhattanCost(GraphNode<GraphNodeData> a, GraphNode<GraphNodeData> b)
+    {
+        return Mathf.Abs(a.Value.Point.x - b.Value.Point.x) + Mathf.Abs(a.Value.Point.y - b.Value.Point.y);
+    }
+
+    public static float GetEuclideanCost(GraphNode<GraphNodeData> a, GraphNode<GraphNodeData> b)
+    {
+        return GetCostBetweenTwoCells(a, b);
+    }
+
+    public static float GetCostBetweenTwoCells(GraphNode<GraphNodeData> a, GraphNode<GraphNodeData> b)
+    {
+        return Mathf.Sqrt(
+                (a.Value.Point.x - b.Value.Point.x) * (a.Value.Point.x - b.Value.Point.x) +
+                (a.Value.Point.y - b.Value.Point.y) * (a.Value.Point.y - b.Value.Point.y)
+            );
     }
 
     public static SampleGraph CreateSampleGraph()

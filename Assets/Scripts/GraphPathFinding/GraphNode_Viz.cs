@@ -5,6 +5,7 @@ using GameAI.PathFinding;
 
 public class GraphNode_Viz : MonoBehaviour
 {
+    public GraphNodeData Data { get; set; }
     public GraphNode<GraphNodeData> Node { get; set; }
     public SpriteRenderer mInnerSprite;
 
@@ -36,6 +37,6 @@ public class GraphNode_Viz : MonoBehaviour
     {
         Color c = Color.gray;
         c.a = 0.2f;
-        SetColor(Color.gray);
+        SetColor(c);
     }
 }
