@@ -47,7 +47,7 @@ namespace GameAI
 
         public class GraphNode<T> : Node<T>
         {
-            private List<int> costs;
+            private List<float> costs;
 
             public GraphNode() : base() { }
             public GraphNode(T value) : base(value) { }
@@ -64,12 +64,12 @@ namespace GameAI
                 }
             }
 
-            public List<int> Costs
+            public List<float> Costs
             {
                 get
                 {
                     if (costs == null)
-                        costs = new List<int>();
+                        costs = new List<float>();
 
                     return costs;
                 }
@@ -101,13 +101,13 @@ namespace GameAI
                 nodeSet.Add(new GraphNode<T>(value));
             }
 
-            public void AddDirectedEdge(GraphNode<T> from, GraphNode<T> to, int cost)
+            public void AddDirectedEdge(GraphNode<T> from, GraphNode<T> to, float cost)
             {
                 from.Neighbors.Add(to);
                 from.Costs.Add(cost);
             }
 
-            public void AddUndirectedEdge(GraphNode<T> from, GraphNode<T> to, int cost)
+            public void AddUndirectedEdge(GraphNode<T> from, GraphNode<T> to, float cost)
             {
                 from.Neighbors.Add(to);
                 from.Costs.Add(cost);
@@ -166,7 +166,7 @@ namespace GameAI
                 }
             }
 
-            public int Count
+            public float Count
             {
                 get { return nodeSet.Count; }
             }

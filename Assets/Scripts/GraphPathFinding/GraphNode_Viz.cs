@@ -9,6 +9,9 @@ public class GraphNode_Viz : MonoBehaviour
     public SpriteRenderer mInnerSprite;
 
     private Stack<Color> mColorStack = new Stack<Color>();
+
+    public Line mLine;
+
     public void SetColor(Color color)
     {
         mColorStack.Push(color);
@@ -20,8 +23,19 @@ public class GraphNode_Viz : MonoBehaviour
         mInnerSprite.color = mColorStack.Peek();
     }
 
+    public void ResetColor()
+    {
+        while(mColorStack.Count > 1)
+        {
+            mColorStack.Pop();
+        }
+        mInnerSprite.color = mColorStack.Peek();
+    }
+
     private void Start()
     {
+        Color c = Color.gray;
+        c.a = 0.2f;
         SetColor(Color.gray);
     }
 }

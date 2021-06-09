@@ -5,6 +5,7 @@ using GameAI.PathFinding;
 
 public class GraphMap_Viz_Editor : MonoBehaviour
 {
+    public string SceneName = "graphdemo";
     public int mY = 10;
     public int mX = 10;
     public float mSpacing = 1.0f;
@@ -94,12 +95,7 @@ public class GraphMap_Viz_Editor : MonoBehaviour
                 float y = j * mSpacing;
                 GameObject obj = Instantiate(PrefabGraphNode, new Vector3(x, y, 0.0f), Quaternion.identity);
                 string name = "node_" + i.ToString() + "_" + j.ToString();
-                GraphNodeData data = new GraphNodeData(name, x, y);
-                GraphNode<GraphNodeData> node = new GraphNode<GraphNodeData>(data);
-                mGraph.AddNode(node);
-
-                // Keep a reference of the graph node in the graph node viz.
-                obj.GetComponent<GraphNode_Viz>().Node = node;
+                obj.name = name;
                 obj.GetComponent<ConstantScreenSizeForSprite>().Camera = Camera.main;
 
                 if(ParentForGraphNodes != null)
@@ -107,14 +103,17 @@ public class GraphMap_Viz_Editor : MonoBehaviour
                     obj.transform.SetParent(ParentForGraphNodes);
                 }
 
+                GraphNodeData data = new GraphNodeData(obj.name, obj.transform.position.x, obj.transform.position.y);
+                GraphNode<GraphNodeData> node = new GraphNode<GraphNodeData>(data);
+                mGraph.AddNode(node);
+
+                //Keep a reference of the graph node in the graph node viz.
+                obj.GetComponent<GraphNode_Viz>().Node = node;
                 mGraphNodeGameObjDic.Add(data, obj);
             }
         }
 
-        mGraph.CalculateExtent();
-
-        Camera.main.transform.position = new Vector3(mGraph.Extent.center.x, mGraph.Extent.center.y, -10.0f);
-        Camera.main.orthographicSize = 1.2f * mGraph.Extent.height / 2.0f;
+        AdjustCameraView();
 
         // set all delegates
         mOnSelectedGraphNode += OnSelectedGraphNode;
@@ -126,6 +125,13 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         mFsm.Add(new ConnectingState(this));
 
         mFsm.SetCurrentState((int)ModeType.SELECTION);
+    }
+
+    public void AdjustCameraView()
+    {
+        mGraph.CalculateExtent();
+        Camera.main.transform.position = new Vector3(mGraph.Extent.center.x, mGraph.Extent.center.y, -10.0f);
+        Camera.main.orthographicSize = 1.2f * mGraph.Extent.height / 2.0f;
     }
 
     // Update is called once per frame
@@ -202,9 +208,6 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         GraphNode_Viz aViz = a.GetComponent<GraphNode_Viz>();
         GraphNode_Viz bViz = b.GetComponent<GraphNode_Viz>();
 
-        //aViz.SetColor(Color.blue);
-        bViz.SetColor(Color.green);
-
         // Add the edge to graph.
         mGraph.AddUndirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
         //mGraph.AddDirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
@@ -219,7 +222,6 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         }
         mSelectedGraphNode = obj;
         mOnSelectedGraphNode?.Invoke(obj);
-
     }
 
     public void SetUnSelectGraphNode(GameObject obj)
@@ -278,7 +280,87 @@ public class GraphMap_Viz_Editor : MonoBehaviour
     }
     void OnConnectGraphNodes(GameObject a, GameObject b)
     {
-        Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.black);
+        b.GetComponent<GraphNode_Viz>().SetColor(Color.green);
+        Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.cyan);
+        a.GetComponent<GraphNode_Viz>().mLine = line;
     }
+
+    void OnClearGraph()
+    {
+        for(int i = 0;i < ParentForGraphNodes.childCount; ++i)
+        {
+            GraphNode_Viz viz = ParentForGraphNodes.GetChild(i).gameObject.GetComponent<GraphNode_Viz>();
+            if(viz != null)
+            {
+                viz.ResetColor();
+            }
+        }
+    }
+    #endregion
+
+    #region Graph settings/UI related methods.
+
+    public void ClearGraph()
+    {
+        for(int i = 0; i < mGraph.Nodes.Count; ++i)
+        {
+            if(mGraph.Nodes[i].Neighbors != null)
+                mGraph.Nodes[i].Neighbors.Clear();
+            ((GraphNode<GraphNodeData>)(mGraph.Nodes[i])).Costs.Clear();
+        }
+        mGraph.Nodes.Clear();
+    }
+
+    public void SaveGraph()
+    {
+        SampleGraph.Save(mGraph, SceneName);
+    }
+
+    public void LoadGraph()
+    {
+        ClearGraph();
+        foreach (GameObject item in mGraphNodeGameObjDic.Values)
+        {
+            Destroy(item);
+        }
+        mGraphNodeGameObjDic.Clear();
+
+        mGraph = SampleGraph.Load(SceneName);
+
+        // recreate the sprites.
+        for (int i = 0; i < mGraph.Nodes.Count; ++i)
+        {
+            GraphNode<GraphNodeData> gn = (GraphNode<GraphNodeData>)mGraph.Nodes[i];
+            GraphNodeData data = mGraph.Nodes[i].Value;
+
+            GameObject obj = Instantiate(PrefabGraphNode, new Vector3(data.Point.x, data.Point.y, 0.0f), Quaternion.identity);
+            obj.name = data.Name;
+            obj.GetComponent<ConstantScreenSizeForSprite>().Camera = Camera.main;
+
+            if (ParentForGraphNodes != null)
+            {
+                obj.transform.SetParent(ParentForGraphNodes);
+            }
+
+            //Keep a reference of the graph node in the graph node viz.
+            obj.GetComponent<GraphNode_Viz>().Node = gn;
+            mGraphNodeGameObjDic.Add(data, obj);
+        }
+        for (int i = 0; i < mGraph.Nodes.Count; ++i)
+        {
+            GraphNode<GraphNodeData> from = (GraphNode<GraphNodeData>)mGraph.Nodes[i];
+            if(from.Neighbors.Count > 0)
+            {
+                //mGraphNodeGameObjDic[from.Value].GetComponent<GraphNode_Viz>().SetColor(Color.cyan);
+            }
+            for (int j = 0; j < from.Neighbors.Count; ++j)
+            {
+                GraphNode<GraphNodeData> to = (GraphNode<GraphNodeData>)from.Neighbors[j];
+                //mGraphNodeGameObjDic[to.Value].GetComponent<GraphNode_Viz>().SetColor(Color.cyan);
+                mOnConnectGraphNodes?.Invoke(mGraphNodeGameObjDic[from.Value], mGraphNodeGameObjDic[to.Value]);
+            }
+        }
+    }
+
     #endregion
 }

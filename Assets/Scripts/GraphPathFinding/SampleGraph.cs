@@ -2,6 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GameAI.PathFinding;
+using System.IO;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.Runtime.Serialization;
 using Oware;
 
 /// <summary>
@@ -39,9 +42,117 @@ public class SampleGraph : Graph<GraphNodeData>
         mExtent.yMax = maxY;
     }
 
-    public void CreateGraphEditor(int xNum, int yNum)
+    GraphNode<GraphNodeData> FindByName(string name)
     {
+        for(int i = 0; i < Nodes.Count; ++i)
+        {
+            if (name.Equals(Nodes[i].Value.Name))
+                return (GraphNode<GraphNodeData>)(Nodes[i]);
+        }
+        return null;
+    }
 
+    public static void Save(SampleGraph graph, string filen)
+    {
+        string filename = Application.persistentDataPath + "/" + filen;
+
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Create(filename);
+
+        try
+        {
+            bf.Serialize(file, graph.Nodes.Count);
+            for (int i = 0; i < graph.Nodes.Count; ++i)
+            {
+                GraphNodeData d = graph.Nodes[i].Value;
+
+                bf.Serialize(file, d.Name);
+                bf.Serialize(file, d.Point.x);
+                bf.Serialize(file, d.Point.y);
+            }
+            // the edges.
+            for (int i = 0; i < graph.Nodes.Count; ++i)
+            {
+                List<Node<GraphNodeData>> neighbours = graph.Nodes[i].Neighbors;
+                if (neighbours != null)
+                {
+                    bf.Serialize(file, neighbours.Count);
+
+                    for (int j = 0; j < neighbours.Count; ++j)
+                    {
+                        GraphNode<GraphNodeData> gn = (GraphNode<GraphNodeData>)(neighbours[j]);
+                        bf.Serialize(file, gn.Value.Name);
+                        bf.Serialize(file, ((GraphNode<GraphNodeData>)graph.Nodes[i]).Costs[j]);
+                    }
+                }
+                else
+                {
+                    bf.Serialize(file, 0);
+                }
+            }
+        }
+        catch (SerializationException e)
+        {
+            Debug.Log("Failed to save graph map. Reason: " + e.Message);
+            throw;
+        }
+        finally
+        {
+            file.Close();
+        }
+    }
+
+    // static method to load a map from a file.
+    public static SampleGraph Load(string filen)
+    {
+        string filename = Application.persistentDataPath + "/" + filen;
+        SampleGraph graph = null;
+        if (!File.Exists(filename))
+            return null;
+
+        BinaryFormatter bf = new BinaryFormatter();
+        using (FileStream file = new FileStream(filename, FileMode.Open))
+        {
+            try
+            {
+                graph = new SampleGraph(); 
+                int nodeCount = 0;
+                nodeCount = (int)bf.Deserialize(file);
+                for (int i = 0; i < nodeCount; ++i)
+                {
+                    GraphNodeData d = new GraphNodeData();
+                    d.Name = (string)bf.Deserialize(file);
+                    float x = (float)bf.Deserialize(file);
+                    float y = (float)bf.Deserialize(file);
+                    d.Point = new Vector2(x, y);
+                    graph.AddNode(new GraphNode<GraphNodeData>(d));
+                }
+                for (int i = 0; i < graph.Nodes.Count; ++i)
+                {
+                    int neighbourCount = 0;
+                    neighbourCount = (int)bf.Deserialize(file);
+
+                    for (int j = 0; j < neighbourCount; ++j)
+                    {
+                        string name = (string)bf.Deserialize(file);
+                        float cost = (float)bf.Deserialize(file);
+
+                        GraphNode<GraphNodeData> gn = graph.FindByName(name);
+                        graph.AddDirectedEdge((GraphNode<GraphNodeData>)graph.Nodes[i], gn, cost);
+                    }
+                }
+            }
+            catch (SerializationException e)
+            {
+                Debug.Log("Failed to load graph map. Reason: " + e.Message);
+                graph = null;
+            }
+            finally
+            {
+                file.Close();
+            }
+        }
+        return graph;
     }
 
     public static SampleGraph CreateSampleGraph()

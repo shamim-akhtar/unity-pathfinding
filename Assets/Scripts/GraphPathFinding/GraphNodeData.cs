@@ -20,8 +20,8 @@ public class GraphNodeData
         Point = new Vector2(x, y);
     }
 
-    public static int Distance(GraphNodeData a, GraphNodeData b)
+    public static float Distance(GraphNodeData a, GraphNodeData b)
     {
-        return (int)(a.Point - b.Point).sqrMagnitude;
+        return (a.Point - b.Point).magnitude;
     }
 }
