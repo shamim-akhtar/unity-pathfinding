@@ -8,22 +8,22 @@ namespace GameAI
     {
         public class DijkstraPathFinder<T> : PathFinder<T>
         {
-            protected override void AlgorithmSpecificImplementation(T cell)
+            protected override void AlgorithmSpecificImplementation(Node<T> cell)
             {
-                if (IsInList(mClosedList, cell) == -1)
+                if (IsInList(mClosedList, cell.Value) == -1)
                 {
-                    float G = CurrentNode.GCost + GCostFunction(CurrentNode.Location, cell);
+                    float G = CurrentNode.GCost + GCostFunction(CurrentNode.Location.Value, cell.Value);
                     float H = 0.0f;// HCostFunction(cell, Goal);
                     //Dijkstra doesn't include the Heuristic cost
 
                     // Check if the cell is already there in the open list.
-                    int idOList = IsInList(mOpenList, cell);
+                    int idOList = IsInList(mOpenList, cell.Value);
                     if (idOList == -1)
                     {
                         // The cell does not exist in the open list.
                         // We will add the cell to the open list.
 
-                        PathFinderNode<T> n = new PathFinderNode<T>(cell, CurrentNode, G, H);
+                        PathFinderNode n = new PathFinderNode(cell, CurrentNode, G, H);
                         mOpenList.Add(n);
                         onAddToOpenList?.Invoke(n);
                     }

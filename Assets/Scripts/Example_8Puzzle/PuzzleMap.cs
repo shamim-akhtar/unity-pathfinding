@@ -4,18 +4,35 @@ using GameAI.PathFinding;
 
 namespace Puzzle
 {
-    public class PuzzleMap : IMap<PuzzleState>
+    public class PuzzleNode : Node<PuzzleState>
+    {
+        private PuzzleMap mPuzzleMap;
+        public PuzzleNode(PuzzleState value) : base(value)
+        {
+
+        }
+        public PuzzleNode(PuzzleMap puzzleMap, PuzzleState value) : base(value)
+        {
+            mPuzzleMap = puzzleMap;
+        }
+
+        public override List<Node<PuzzleState>> GetNeighbours()
+        {
+            return mPuzzleMap.GetNeighbours(this);
+        }
+    }
+    public class PuzzleMap
     {
         #region Interface Function Implementation.
-        public List<PuzzleState> GetNeighbours(PuzzleState loc)
+        public List<Node<PuzzleState>> GetNeighbours(PuzzleNode loc)
         {
-            List<PuzzleState> neighbours = new List<PuzzleState>();
-            int zero = loc.GetEmptyTileIndex();
+            List<Node<PuzzleState>> neighbours = new List<Node<PuzzleState>>();
+            int zero = loc.Value.GetEmptyTileIndex();
             List<int> intArray = GetNeighbors(zero);
             for (int i = 0; i < intArray.Count; ++i)
             {
-                PuzzleState state = new PuzzleState(loc);
-                state.SwapWithEmpty(intArray[i]);
+                PuzzleNode state = new PuzzleNode(this, new PuzzleState(loc.Value));
+                state.Value.SwapWithEmpty(intArray[i]);
                 neighbours.Add(state);
             }
             return neighbours;

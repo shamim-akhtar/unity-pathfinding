@@ -8,11 +8,11 @@ namespace GameAI
     {
         public class AStarPathFinder<T> : PathFinder<T>
         {
-            protected override void AlgorithmSpecificImplementation(T cell)
+            protected override void AlgorithmSpecificImplementation(Node<T> cell)
             {
                 // first of all check if the node is already in the closedlist.
                 // if so then we do not need to continue search for this node.
-                if (IsInList(mClosedList, cell) == -1)
+                if (IsInList(mClosedList, cell.Value) == -1)
                 {
                     // The cell does not exist in the closed list.
 
@@ -23,17 +23,17 @@ namespace GameAI
                     // We can actually implement a function to calculate the cost 
                     // between two adjacent cells. 
 
-                    float G = CurrentNode.GCost + GCostFunction(CurrentNode.Location, cell);
-                    float H = HCostFunction(cell, Goal);
+                    float G = CurrentNode.GCost + GCostFunction(CurrentNode.Location.Value, cell.Value);
+                    float H = HCostFunction(cell.Value, Goal.Value);
 
                     // Check if the cell is already there in the open list.
-                    int idOList = IsInList(mOpenList, cell);
+                    int idOList = IsInList(mOpenList, cell.Value);
                     if (idOList == -1)
                     {
                         // The cell does not exist in the open list.
                         // We will add the cell to the open list.
 
-                        PathFinderNode<T> n = new PathFinderNode<T>(cell, CurrentNode, G, H);
+                        PathFinderNode n = new PathFinderNode(cell, CurrentNode, G, H);
                         mOpenList.Add(n);
                         onAddToOpenList?.Invoke(n);
                     }

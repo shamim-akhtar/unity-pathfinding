@@ -68,6 +68,13 @@ public class LineFactory : MonoBehaviour
 		}
 
 		return activeLines;
-	}
+    }
+    public void SetAllInActive()
+    {
+        foreach (var line in pooledLines)
+        {
+            line.gameObject.SetActive(false);
+        }
+    }
 
 }

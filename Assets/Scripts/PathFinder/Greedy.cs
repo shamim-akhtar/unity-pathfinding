@@ -8,22 +8,22 @@ namespace GameAI
     {
         public class GreedyPathFinder<T> : PathFinder<T>
         {
-            protected override void AlgorithmSpecificImplementation(T cell)
+            protected override void AlgorithmSpecificImplementation(Node<T> cell)
             {
-                if (IsInList(mClosedList, cell) == -1)
+                if (IsInList(mClosedList, cell.Value) == -1)
                 {
                     float G = 0.0f;// CurrentNode.GCost + GCostFunction(CurrentNode.Location, cell);
-                    float H = HCostFunction(cell, Goal);
+                    float H = HCostFunction(cell.Value, Goal.Value);
                     //Greedy best-first does doesn't include the G cost
 
                     // Check if the cell is already there in the open list.
-                    int idOList = IsInList(mOpenList, cell);
+                    int idOList = IsInList(mOpenList, cell.Value);
                     if (idOList == -1)
                     {
                         // The cell does not exist in the open list.
                         // We will add the cell to the open list.
 
-                        PathFinderNode<T> n = new PathFinderNode<T>(cell, CurrentNode, G, H);
+                        PathFinderNode n = new PathFinderNode(cell, CurrentNode, G, H);
                         mOpenList.Add(n);
                         onAddToOpenList?.Invoke(n);
                     }
