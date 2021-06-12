@@ -15,7 +15,7 @@ public class GraphNode_Viz : MonoBehaviour
     List<GameObject> mLines = new List<GameObject>();
 
     float mOriginalCameraSize = 10.0f;
-    float mLineWidth = 0.1f;
+    float mLineWidth = 0.2f;
 
     public void SetColor(Color color)
     {
@@ -65,10 +65,9 @@ public class GraphNode_Viz : MonoBehaviour
         {
             Vector3 endPoint = new Vector3(Node.Neighbours[i].Value.Point.x, Node.Neighbours[i].Value.Point.y, 0.0f);
             LineRenderer lr = GetOrCreateLine(i);
-            //lr.SetPosition(0, transform.position);
-            //lr.SetPosition(1, endPoint);
-            lr.startColor = Color.cyan;
-            lr.endColor = Color.red;
+            lr.material = new Material(Shader.Find("Sprites/Default"));
+            lr.startColor = Color.green;
+            lr.endColor = Color.white;
             lr.startWidth = mLineWidth;
             lr.endWidth = mLineWidth;
 
@@ -85,17 +84,17 @@ public class GraphNode_Viz : MonoBehaviour
         float angle1 = Mathf.Atan2(d.y, d.x);
         float pa = angle1 + Mathf.Deg2Rad * 30.0f;
 
-        float px = Mathf.Cos(pa) * transform.localScale.x;
-        float py = Mathf.Sin(pa) * transform.localScale.y;
+        float px = Mathf.Cos(pa) * transform.localScale.x * 0.2f;
+        float py = Mathf.Sin(pa) * transform.localScale.y * 0.2f;
 
         float angle2 = Mathf.Atan2((start.y-end.y), (start.x-end.x));
-        float ea = angle1 + Mathf.Deg2Rad * 30.0f;
+        float ea = angle2 - Mathf.Deg2Rad * 30.0f;
 
-        float ex = Mathf.Cos(ea) * transform.localScale.x;
-        float ey = Mathf.Sin(ea) * transform.localScale.y;
+        float ex = Mathf.Cos(ea) * transform.localScale.x * 0.2f;
+        float ey = Mathf.Sin(ea) * transform.localScale.y * 0.2f;
 
         line.SetPosition(0, new Vector3(start.x + px, start.y + py, 0.0f));
-        line.SetPosition(1, new Vector3(end.x - ex, end.y - ey, 0.0f));
+        line.SetPosition(1, new Vector3(end.x + ex, end.y + ey, 0.0f));
     }
 
     void LateUpdate()
@@ -108,11 +107,12 @@ public class GraphNode_Viz : MonoBehaviour
             lr.startWidth = lw;
             lr.endWidth = lw;
         }
+
+        if (Node == null) return;
         for (int i = 0; i < Node.Neighbours.Count; ++i)
         {
             Vector3 endPoint = new Vector3(Node.Neighbours[i].Value.Point.x, Node.Neighbours[i].Value.Point.y, 0.0f);
             LineRenderer lr = GetOrCreateLine(i);
-
             SetPoints(lr, new Vector2(transform.position.x, transform.position.y), Node.Neighbours[i].Value.Point);
         }
     }
