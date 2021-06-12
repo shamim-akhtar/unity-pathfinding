@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using GameAI.PathFinding;
+using UnityEngine.SceneManagement;
 
 public class GraphMap_Viz_Editor : MonoBehaviour
 {
@@ -382,5 +383,12 @@ public class GraphMap_Viz_Editor : MonoBehaviour
 
     }
 
+    #endregion
+
+    #region UI Implementation
+    public void LoadGraphPlayMode()
+    {
+        SceneManager.LoadScene("Demo_GraphPathFinding_Play");
+    }
     #endregion
 }

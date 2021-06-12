@@ -46,10 +46,10 @@ public class GraphPathFinder_Viz : MonoBehaviour
         mPathFinder.GCostFunction = SampleGraph.GetCostBetweenTwoCells;
         mPathFinder.HCostFunction = SampleGraph.GetManhattanCost;
 
-        //mPathFinder.onAddToClosedList += mGraphMap_Viz_Play.OnAddToClosedList;
-        //mPathFinder.onAddToOpenList += mGraphMap_Viz_Play.OnAddToOpenList;
-        //mPathFinder.onChangeCurrentNode += mGraphMap_Viz_Play.OnChangeCurrentNode;
-        //mPathFinder.onDestinationFound += mGraphMap_Viz_Play.OnDestinationFound;
+        mPathFinder.onAddToClosedList += mGraphMap_Viz_Play.OnAddToClosedList;
+        mPathFinder.onAddToOpenList += mGraphMap_Viz_Play.OnAddToOpenList;
+        mPathFinder.onChangeCurrentNode += mGraphMap_Viz_Play.OnChangeCurrentNode;
+        mPathFinder.onDestinationFound += mGraphMap_Viz_Play.OnDestinationFound;
     }
 
     public void SetGoal(GraphNode<GraphNodeData> destination)

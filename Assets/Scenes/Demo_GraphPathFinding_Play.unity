@@ -650,7 +650,26 @@ MonoBehaviour:
   SceneName: graphdemo
   PrefabGraphNode: {fileID: 5967998560493205313, guid: 5fae317cf5fd1b54f8a6900c1c3a0c3d, type: 3}
   ParentForGraphNodes: {fileID: 1032374008}
+  GoalGrameObject: {fileID: 1559886566}
   PrefabNPC: {fileID: 4714171364368681874, guid: 9580817ae7254d64c9af4c94367e78a4, type: 3}
+  COLOR_OPEN_LIST: {r: 0, g: 0, b: 1, a: 0.3}
+  COLOR_CLOSED_LIST: {r: 0, g: 0, b: 0, a: 0.3}
+  COLOR_CURRENT_NODE: {r: 1, g: 0, b: 0, a: 0.3}
+  COLOR_SOLUTION: {r: 0, g: 1, b: 1, a: 0.7}
+  mModeTypeText: {fileID: 424689280}
+  mInteractiveText: {fileID: 13137373}
+  mAlgorithmText: {fileID: 912982308}
+  mPlayButton: {fileID: 1352735009}
+  mStepButton: {fileID: 1784511742}
+  mResetButton: {fileID: 278133414}
+  mLeanSwitchAlgo: {fileID: 1226710905}
+  mCostPanel: {fileID: 2064508207}
+  mFCostText: {fileID: 1494222025}
+  mGCostText: {fileID: 821875416}
+  mHCostText: {fileID: 989044033}
+  mToggleInteractive: {fileID: 1938284028}
+  mToggleCostFunction: {fileID: 1971840249}
+  mCostFunctionText: {fileID: 367048857}
 --- !u!1 &244675500
 GameObject:
   m_ObjectHideFlags: 0
@@ -924,7 +943,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &278133413
 RectTransform:
   m_ObjectHideFlags: 0
@@ -988,7 +1007,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 278133415}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 196420314}
+        m_TargetAssemblyTypeName: GraphMap_Viz_Play, Assembly-CSharp
+        m_MethodName: OnResetPathFinding
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &278133415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1212,7 +1243,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.9058824, g: 0.93725497, b: 0.9686275, a: 1}
+  m_Color: {r: 0.03137255, g: 0.5803922, b: 0.96862745, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1686,7 +1717,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0.2735849, g: 0.26197046, b: 0.26197046, a: 0.89411765}
+  m_Color: {r: 0, g: 0, b: 0, a: 0.78431374}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1706,7 +1737,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 1
     m_VerticalOverflow: 1
     m_LineSpacing: 0.75
-  m_Text: Editing Mode
+  m_Text: Pathfinding Mode
 --- !u!222 &424689281
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -2036,6 +2067,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 196420314}
+        m_TargetAssemblyTypeName: GraphMap_Viz_Play, Assembly-CSharp
+        m_MethodName: SetToggle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onClick:
     m_PersistentCalls:
       m_Calls: []
@@ -2051,7 +2094,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0c66d284d9a82ee4ca480f0ae8d2805b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  on: 0
+  on: 1
   turnOffSiblings: 0
   onTransitions:
     speed: 0
@@ -4327,7 +4370,19 @@ MonoBehaviour:
         Obj: {fileID: 8300000, guid: 3cdf6946b7f8a1549ab339405d1c0146, type: 3}
   onChangedState:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 196420314}
+        m_TargetAssemblyTypeName: GraphMap_Viz_Play, Assembly-CSharp
+        m_MethodName: OnSelectAlgorithm
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1229636088
 GameObject:
   m_ObjectHideFlags: 0
@@ -4864,7 +4919,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1352735008
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4928,7 +4983,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1352735010}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 196420314}
+        m_TargetAssemblyTypeName: GraphMap_Viz_Play, Assembly-CSharp
+        m_MethodName: OnPlayPathFinding
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1352735010
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5280,6 +5347,50 @@ MonoBehaviour:
     Target: {fileID: 531366318}
     Value: -32
     Ease: 250
+--- !u!1 &1458838890
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1458838892}
+  - component: {fileID: 1458838891}
+  m_Layer: 0
+  m_Name: LeanTransition
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1458838891
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1458838890}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 217c8e972fc1ae74abf64e3200253b45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultTiming: -1
+--- !u!4 &1458838892
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1458838890}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1494222023
 GameObject:
   m_ObjectHideFlags: 0
@@ -5450,13 +5561,14 @@ GameObject:
   - component: {fileID: 1559886565}
   - component: {fileID: 1559886567}
   - component: {fileID: 1559886568}
+  - component: {fileID: 1559886569}
   m_Layer: 0
   m_Name: Circle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!212 &1559886565
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5536,6 +5648,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mOriginalCameraSize: 10
   Camera: {fileID: 1055040091}
+  OrigScale: {x: 1, y: 1, z: 1}
 --- !u!58 &1559886568
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -5552,6 +5665,21 @@ CircleCollider2D:
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
   m_Radius: 0.5
+--- !u!114 &1559886569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1559886564}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30a72ddd574ef8d4b8684e3ae1598d47, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mOriginalCameraSize: 10
+  Camera: {fileID: 1055040091}
+  OrigScale: {x: 1, y: 1, z: 1}
 --- !u!1 &1581949694
 GameObject:
   m_ObjectHideFlags: 0
@@ -5736,7 +5864,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -32, y: 0}
+  m_AnchoredPosition: {x: 32, y: 0}
   m_SizeDelta: {x: 50, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1659728021
@@ -5828,7 +5956,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.09411765}
+  m_Color: {r: 1, g: 1, b: 1, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -6070,7 +6198,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1784511741
 RectTransform:
   m_ObjectHideFlags: 0
@@ -6134,7 +6262,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1784511743}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 196420314}
+        m_TargetAssemblyTypeName: GraphMap_Viz_Play, Assembly-CSharp
+        m_MethodName: OnStepPathFinding
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1784511743
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6577,6 +6717,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 196420314}
+        m_TargetAssemblyTypeName: GraphMap_Viz_Play, Assembly-CSharp
+        m_MethodName: SetToggleInteractive
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   onClick:
     m_PersistentCalls:
       m_Calls: []
@@ -6941,6 +7093,18 @@ MonoBehaviour:
       - m_Target: {fileID: 1971840249}
         m_TargetAssemblyTypeName: Lean.Gui.LeanToggle, LeanGUI
         m_MethodName: Toggle
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 196420314}
+        m_TargetAssemblyTypeName: GraphMap_Viz_Play, Assembly-CSharp
+        m_MethodName: SetToggleCostFunction
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
