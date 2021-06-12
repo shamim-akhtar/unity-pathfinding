@@ -7,6 +7,7 @@ public class GraphPathFinder_Viz : MonoBehaviour
 {
     public PathFinder<GraphNodeData> mPathFinder;
     public GraphMap_Viz_Play mGraphMap_Viz_Play;
+    public NPCMovement mNPCMovement;
 
     public GraphNode<GraphNodeData> StartNode { get; set; }
 
@@ -87,8 +88,27 @@ public class GraphPathFinder_Viz : MonoBehaviour
 
         if (mPathFinder.Status == PathFinderStatus.SUCCESS)
         {
-            StartCoroutine(Coroutine_MoveThroughPathNodes());
+            //StartCoroutine(Coroutine_MoveThroughPathNodes());
+            CollectWayPointsFromPathFinder();
         }
+    }
+    void CollectWayPointsFromPathFinder()
+    {
+        List<Vector2> reverseIndices = new List<Vector2>();
+
+        // accumulate the nodes.
+        PathFinder<GraphNodeData>.PathFinderNode node = mPathFinder.CurrentNode;
+        while (node != null)
+        {
+            reverseIndices.Add(node.Location.Value.Point);
+            node = node.Parent;
+        }
+
+        for (int i = reverseIndices.Count - 1; i >= 0; i -= 1)
+        {
+            mNPCMovement.AddMoveToPoint(reverseIndices[i]);
+        }
+        StartNode = (GraphNode<GraphNodeData>)mPathFinder.Goal;
     }
 
     // Use this function is you to continuously find path using 
@@ -114,54 +134,54 @@ public class GraphPathFinder_Viz : MonoBehaviour
 
         if (mPathFinder.Status == PathFinderStatus.SUCCESS)
         {
-            StartCoroutine(Coroutine_MoveThroughPathNodes());
+            //StartCoroutine(Coroutine_MoveThroughPathNodes());
+            CollectWayPointsFromPathFinder();
         }
     }
 
-    IEnumerator Coroutine_MoveThroughPathNodes()
-    {
-        if (!mReachedGoal)
-        {
-            List<Vector2> reverseIndices = new List<Vector2>();
+    //IEnumerator Coroutine_MoveThroughPathNodes()
+    //{
+    //    if (!mReachedGoal)
+    //    {
+    //        List<Vector2> reverseIndices = new List<Vector2>();
 
-            // accumulate the nodes.
-            PathFinder< GraphNodeData>.PathFinderNode node = mPathFinder.CurrentNode;
-            while (node != null)
-            {
-                reverseIndices.Add(node.Location.Value.Point);
-                node = node.Parent;
-            }
+    //        // accumulate the nodes.
+    //        PathFinder< GraphNodeData>.PathFinderNode node = mPathFinder.CurrentNode;
+    //        while (node != null)
+    //        {
+    //            reverseIndices.Add(node.Location.Value.Point);
+    //            node = node.Parent;
+    //        }
 
-            //StopCoroutine("Coroutine_MoveTo");
-            for (int i = reverseIndices.Count - 1; i >= 0; i -= 1)
-            {
-                yield return StartCoroutine(Coroutine_MoveTo(reverseIndices[i], 2.0f));
-            }
-            mReachedGoal = true;
-            StartNode = (GraphNode<GraphNodeData>)mPathFinder.Goal;
-        }
-    }
+    //        for (int i = reverseIndices.Count - 1; i >= 0; i -= 1)
+    //        {
+    //            yield return StartCoroutine(Coroutine_MoveTo(reverseIndices[i], 2.0f));
+    //        }
+    //        mReachedGoal = true;
+    //        StartNode = (GraphNode<GraphNodeData>)mPathFinder.Goal;
+    //    }
+    //}
 
-    // coroutine to swap tiles smoothly
-    private IEnumerator Coroutine_MoveOverSeconds(GameObject objectToMove, Vector3 end, float seconds)
-    {
-        float elapsedTime = 0;
-        Vector3 startingPos = objectToMove.transform.position;
-        //player_moving = true;
-        while (elapsedTime < seconds)
-        {
-            objectToMove.transform.position = Vector3.Lerp(startingPos, end, (elapsedTime / seconds));
-            elapsedTime += Time.deltaTime;
+    //// coroutine to swap tiles smoothly
+    //private IEnumerator Coroutine_MoveOverSeconds(GameObject objectToMove, Vector3 end, float seconds)
+    //{
+    //    float elapsedTime = 0;
+    //    Vector3 startingPos = objectToMove.transform.position;
+    //    //player_moving = true;
+    //    while (elapsedTime < seconds)
+    //    {
+    //        objectToMove.transform.position = Vector3.Lerp(startingPos, end, (elapsedTime / seconds));
+    //        elapsedTime += Time.deltaTime;
 
-            yield return new WaitForEndOfFrame();
-        }
-        //player_moving = false;
-        objectToMove.transform.position = end;
-    }
+    //        yield return new WaitForEndOfFrame();
+    //    }
+    //    //player_moving = false;
+    //    objectToMove.transform.position = end;
+    //}
 
-    IEnumerator Coroutine_MoveTo(Vector2 p, float duration = 0.1f)
-    {
-        Vector3 endP = new Vector3(p.x, p.y, transform.position.z);
-        yield return StartCoroutine(Coroutine_MoveOverSeconds(transform.gameObject, endP, duration));
-    }
+    //IEnumerator Coroutine_MoveTo(Vector2 p, float duration = 0.1f)
+    //{
+    //    Vector3 endP = new Vector3(p.x, p.y, transform.position.z);
+    //    yield return StartCoroutine(Coroutine_MoveOverSeconds(transform.gameObject, endP, duration));
+    //}
 }

@@ -99,6 +99,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mOriginalCameraSize: 10
   Camera: {fileID: 0}
+  OrigScale: {x: 0.5, y: 0.5, z: 0.5}
 --- !u!58 &6112996254017614716
 CircleCollider2D:
   m_ObjectHideFlags: 0
@@ -128,4 +129,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mInnerSprite: {fileID: 3818373861825276010}
-  mLine: {fileID: 0}
+  DEFAULT_COLOR: {r: 0.2, g: 0.2, b: 0.2, a: 0.2}
+  mOriginalCameraSize: 10

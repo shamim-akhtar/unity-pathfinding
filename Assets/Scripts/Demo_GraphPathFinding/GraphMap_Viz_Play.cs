@@ -14,8 +14,8 @@ public class GraphMap_Viz_Play : MonoBehaviour
     public Transform ParentForGraphNodes;
     public Transform GoalGrameObject;
 
-    public GameObject PrefabNPC;
-    private GraphPathFinder_Viz mGraphPathFinder_Viz;
+    //public GameObject PrefabNPC;
+    public GraphPathFinder_Viz mGraphPathFinder_Viz;
 
     private Dictionary<GraphNodeData, GameObject> mGraphNodeGameObjDic =
         new Dictionary<GraphNodeData, GameObject>();
@@ -64,19 +64,6 @@ public class GraphMap_Viz_Play : MonoBehaviour
     {
         mGraph.mOnAddNode += OnAddNode;
         mGraph.mOnAddDirectedEdge += OnAddDirectedEdge;
-
-        // create the dummy NPC
-
-        GameObject npc = Instantiate(PrefabNPC);
-        mGraphPathFinder_Viz = npc.AddComponent<GraphPathFinder_Viz>();
-        mGraphPathFinder_Viz.mGraphMap_Viz_Play = this;
-
-        ConstantScreenSizeForSprite consc = npc.AddComponent<ConstantScreenSizeForSprite>();
-        consc.Camera = Camera.main;
-        consc.OrigScale = new Vector3(0.7f, 0.7f, 0.7f);
-
-        GoalGrameObject.gameObject.GetComponent<ConstantScreenSizeForSprite>().OrigScale = new Vector3(0.8f, 0.8f, 0.8f);
-
         LoadGraph();
     }
 
