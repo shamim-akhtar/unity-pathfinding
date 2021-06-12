@@ -19,7 +19,7 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         new Dictionary<GraphNodeData, GameObject>();
 
 
-    public LineFactory mLineFactory;
+    //public LineFactory mLineFactory;
 
     enum ModeType
     {
@@ -194,8 +194,9 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         GameObject b = mGraphNodeGameObjDic[to.Value];
 
         b.GetComponent<GraphNode_Viz>().SetColor(Color.green);
-        Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.cyan);
-        a.GetComponent<GraphNode_Viz>().mLine = line;
+        //Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.cyan);
+        //a.GetComponent<GraphNode_Viz>().mLine = line;
+        a.GetComponent<GraphNode_Viz>().ShowNeighbourLines(true);
     }
 
     public void AdjustCameraView()
@@ -222,9 +223,9 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         GraphNode_Viz p = parent.GetComponent<GraphNode_Viz>();
         GraphNode_Viz c = parent.GetComponent<GraphNode_Viz>();
 
-        for(int i = 0; i < p.Node.Neighbors.Count; ++i)
+        for(int i = 0; i < p.Node.Neighbours.Count; ++i)
         {
-            if (c.Node.Value.Equals(p.Node.Neighbors[i].Value))
+            if (c.Node.Value.Equals(p.Node.Neighbours[i].Value))
                 return false;
         }
         return true;
@@ -295,9 +296,9 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         // Show neighbours colors.
         if (mGraph.Contains(viz.Data))
         {
-            for (int i = 0; i < viz.Node.Neighbors.Count; ++i)
+            for (int i = 0; i < viz.Node.Neighbours.Count; ++i)
             {
-                GameObject neighbourObj = mGraphNodeGameObjDic[viz.Node.Neighbors[i].Value];
+                GameObject neighbourObj = mGraphNodeGameObjDic[viz.Node.Neighbours[i].Value];
                 if (neighbourObj != null)
                 {
                     neighbourObj.GetComponent<GraphNode_Viz>().SetColor(Color.green);
@@ -316,9 +317,9 @@ public class GraphMap_Viz_Editor : MonoBehaviour
 
             if (mGraph.Contains(viz.Data))
             {
-                for (int i = 0; i < viz.Node.Neighbors.Count; ++i)
+                for (int i = 0; i < viz.Node.Neighbours.Count; ++i)
                 {
-                    GameObject neighbourObj = mGraphNodeGameObjDic[viz.Node.Neighbors[i].Value];
+                    GameObject neighbourObj = mGraphNodeGameObjDic[viz.Node.Neighbours[i].Value];
                     if (neighbourObj != null)
                     {
                         neighbourObj.GetComponent<GraphNode_Viz>().UnSetColor();
@@ -332,8 +333,8 @@ public class GraphMap_Viz_Editor : MonoBehaviour
     {
         for(int i = 0; i < mGraph.Nodes.Count; ++i)
         {
-            if(mGraph.Nodes[i].Neighbors != null)
-                mGraph.Nodes[i].Neighbors.Clear();
+            if(mGraph.Nodes[i].Neighbours != null)
+                mGraph.Nodes[i].Neighbours.Clear();
             ((GraphNode<GraphNodeData>)(mGraph.Nodes[i])).Costs.Clear();
         }
         mGraph.Nodes.Clear();
@@ -345,7 +346,7 @@ public class GraphMap_Viz_Editor : MonoBehaviour
             viz.Node = null;
         }
 
-        mLineFactory.SetAllInActive();
+        //mLineFactory.SetAllInActive();
     }
 
     public void SaveGraph()

@@ -5,7 +5,7 @@ using GameAI.PathFinding;
 
 public class GraphPathFinder_Viz : MonoBehaviour
 {
-    public PathFinder<GraphNode<GraphNodeData>> mPathFinder;
+    public PathFinder<GraphNodeData> mPathFinder;
     public GraphMap_Viz_Play mGraphMap_Viz_Play;
 
     public GraphNode<GraphNodeData> StartNode { get; set; }
@@ -23,17 +23,17 @@ public class GraphPathFinder_Viz : MonoBehaviour
         {
             case PathFindingAlgorithm.AStar:
                 {
-                    mPathFinder = new AStarPathFinder<GraphNode<GraphNodeData>>();
+                    mPathFinder = new AStarPathFinder<GraphNodeData>();
                     break;
                 }
             case PathFindingAlgorithm.Dijkstra:
                 {
-                    mPathFinder = new DijkstraPathFinder<GraphNode<GraphNodeData>>();
+                    mPathFinder = new DijkstraPathFinder<GraphNodeData>();
                     break;
                 }
             case PathFindingAlgorithm.Greedy_Best_First:
                 {
-                    mPathFinder = new GreedyPathFinder<GraphNode<GraphNodeData>>();
+                    mPathFinder = new GreedyPathFinder<GraphNodeData>();
                     break;
                 }
         }
@@ -43,8 +43,8 @@ public class GraphPathFinder_Viz : MonoBehaviour
 
     private void InitPathFinder()
     {
-        mPathFinder.SetGCostFunction(SampleGraph.GetCostBetweenTwoCells);
-        mPathFinder.SetHeuristicCostFunction(SampleGraph.GetManhattanCost);
+        mPathFinder.GCostFunction = SampleGraph.GetCostBetweenTwoCells;
+        mPathFinder.HCostFunction = SampleGraph.GetManhattanCost;
 
         //mPathFinder.onAddToClosedList += mGraphMap_Viz_Play.OnAddToClosedList;
         //mPathFinder.onAddToOpenList += mGraphMap_Viz_Play.OnAddToOpenList;
@@ -58,7 +58,7 @@ public class GraphPathFinder_Viz : MonoBehaviour
         {
             SetPathFindingAlgorithm(PathFindingAlgorithm.AStar);
         }
-        if (mPathFinder.Status == PathFinder<GraphNode<GraphNodeData>>.PathFinderStatus.RUNNING)
+        if (mPathFinder.Status == PathFinderStatus.RUNNING)
         {
             Debug.Log("Path finder already running");
             return;
@@ -66,7 +66,7 @@ public class GraphPathFinder_Viz : MonoBehaviour
 
         // NOTE: Remember to call Reset as we are doing a new search.
         mPathFinder.Reset();
-        mPathFinder.Initialize(mGraphMap_Viz_Play.mGraph, StartNode, destination);
+        mPathFinder.Initialize(StartNode, destination);
         mReachedGoal = false;
     }
 
@@ -75,17 +75,17 @@ public class GraphPathFinder_Viz : MonoBehaviour
     public void FindPath_Step()
     {
         if (mReachedGoal) return;
-        if (mPathFinder.Status == PathFinder<GraphNode<GraphNodeData>>.PathFinderStatus.RUNNING)
+        if (mPathFinder.Status == PathFinderStatus.RUNNING)
         {
             mPathFinder.Step();
         }
 
-        if (mPathFinder.Status == PathFinder<GraphNode<GraphNodeData>>.PathFinderStatus.FAILURE)
+        if (mPathFinder.Status == PathFinderStatus.FAILURE)
         {
             Debug.Log("Pathfinder could not find the path to the destination.");
         }
 
-        if (mPathFinder.Status == PathFinder<GraphNode<GraphNodeData>>.PathFinderStatus.SUCCESS)
+        if (mPathFinder.Status == PathFinderStatus.SUCCESS)
         {
             StartCoroutine(Coroutine_MoveThroughPathNodes());
         }
@@ -100,19 +100,19 @@ public class GraphPathFinder_Viz : MonoBehaviour
 
     IEnumerator Coroutine_FindPathAndMove()
     {
-        while (mPathFinder.Status == PathFinder<GraphNode<GraphNodeData>>.PathFinderStatus.RUNNING)
+        while (mPathFinder.Status == PathFinderStatus.RUNNING)
         {
             mPathFinder.Step();
             yield return null;
         }
 
-        if (mPathFinder.Status == PathFinder<GraphNode<GraphNodeData>>.PathFinderStatus.FAILURE)
+        if (mPathFinder.Status == PathFinderStatus.FAILURE)
         {
             Debug.Log("Pathfinder could not find the path to the destination.");
             yield return null;
         }
 
-        if (mPathFinder.Status == PathFinder<GraphNode<GraphNodeData>>.PathFinderStatus.SUCCESS)
+        if (mPathFinder.Status == PathFinderStatus.SUCCESS)
         {
             StartCoroutine(Coroutine_MoveThroughPathNodes());
         }
@@ -125,7 +125,7 @@ public class GraphPathFinder_Viz : MonoBehaviour
             List<Vector2> reverseIndices = new List<Vector2>();
 
             // accumulate the nodes.
-            PathFinderNode<GraphNode<GraphNodeData>> node = mPathFinder.CurrentNode;
+            PathFinder< GraphNodeData>.PathFinderNode node = mPathFinder.CurrentNode;
             while (node != null)
             {
                 reverseIndices.Add(node.Location.Value.Point);
@@ -138,7 +138,7 @@ public class GraphPathFinder_Viz : MonoBehaviour
                 yield return StartCoroutine(Coroutine_MoveTo(reverseIndices[i], 2.0f));
             }
             mReachedGoal = true;
-            StartNode = mPathFinder.Goal;
+            StartNode = (GraphNode<GraphNodeData>)mPathFinder.Goal;
         }
     }
 

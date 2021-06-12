@@ -7,8 +7,9 @@ using GameAI.PathFinding;
 public class PuzzleSolver : MonoBehaviour
 {
     public PuzzleState_Viz mPuzzleStateViz;
-    private PuzzleState mCurrentState = new PuzzleState(3);
-    private PuzzleState mGoalState = new PuzzleState(3);
+
+    private PuzzleNode mCurrentState;
+    private PuzzleNode mGoalState;
 
     private AStarPathFinder<PuzzleState> mAstarSolver = new AStarPathFinder<PuzzleState>();
     private PuzzleMap mPuzzle = new PuzzleMap(3);
@@ -16,9 +17,12 @@ public class PuzzleSolver : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mAstarSolver.onChangeCurrentNode = OnChangeCurrentNode;
-        mAstarSolver.SetGCostFunction(PuzzleMap.GetCostBetweenTwoCells);
-        mAstarSolver.SetHeuristicCostFunction(PuzzleMap.GetManhattanCost);
+        mCurrentState = new PuzzleNode(mPuzzle, new PuzzleState(3));
+        mGoalState = new PuzzleNode(mPuzzle, new PuzzleState(3));
+
+        //mAstarSolver.onChangeCurrentNode = OnChangeCurrentNode;
+        mAstarSolver.GCostFunction = PuzzleMap.GetCostBetweenTwoCells;
+        mAstarSolver.HCostFunction = PuzzleMap.GetManhattanCost;
     }
 
     // Update is called once per frame
@@ -27,22 +31,22 @@ public class PuzzleSolver : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
         {
             //mCurrentState.RandomizeSolvable();
-            mPuzzleStateViz.SetPuzzleState(mCurrentState);
+            mPuzzleStateViz.SetPuzzleState(mCurrentState.Value);
             mAstarSolver.Reset();
-            mAstarSolver.Initialize(mPuzzle, mCurrentState, mGoalState);
+            mAstarSolver.Initialize(mCurrentState, mGoalState);
 
             Solve();
         }
         if (Input.GetKeyDown(KeyCode.RightArrow))
         {
-            if (mAstarSolver.Status == PathFinder<PuzzleState>.PathFinderStatus.RUNNING)
+            if (mAstarSolver.Status == PathFinderStatus.RUNNING)
                 mAstarSolver.Step();
-            if(mAstarSolver.Status == PathFinder<PuzzleState>.PathFinderStatus.SUCCESS)
+            if(mAstarSolver.Status == PathFinderStatus.SUCCESS)
             {
                 Debug.Log("Found solution. Displaying solution now");
                 StartCoroutine(ShowSolution());
             }
-            if (mAstarSolver.Status == PathFinder<PuzzleState>.PathFinderStatus.FAILURE)
+            if (mAstarSolver.Status == PathFinderStatus.FAILURE)
             {
                 Debug.Log("Failure");
             }
@@ -56,17 +60,17 @@ public class PuzzleSolver : MonoBehaviour
 
     IEnumerator Coroutine_Solve()
     {
-        while (mAstarSolver.Status == PathFinder<PuzzleState>.PathFinderStatus.RUNNING)
+        while (mAstarSolver.Status == PathFinderStatus.RUNNING)
         {
             mAstarSolver.Step();
             yield return null;
         }
-        if (mAstarSolver.Status == PathFinder<PuzzleState>.PathFinderStatus.SUCCESS)
+        if (mAstarSolver.Status == PathFinderStatus.SUCCESS)
         {
             Debug.Log("Found solution. Displaying solution now");
             StartCoroutine(ShowSolution());
         }
-        if (mAstarSolver.Status == PathFinder<PuzzleState>.PathFinderStatus.FAILURE)
+        if (mAstarSolver.Status == PathFinderStatus.FAILURE)
         {
             Debug.Log("Failure");
         }
@@ -77,13 +81,13 @@ public class PuzzleSolver : MonoBehaviour
         int i = 0;
         while (i < depth)
         {
-            List<PuzzleState> neighbours = mPuzzle.GetNeighbours(mCurrentState);
+            List<Node<PuzzleState>> neighbours = mPuzzle.GetNeighbours(mCurrentState);
 
             // get a random neignbour.
             int rn = Random.Range(0, neighbours.Count);
-            mCurrentState.SwapWithEmpty(neighbours[rn].GetEmptyTileIndex());
+            mCurrentState.Value.SwapWithEmpty(neighbours[rn].Value.GetEmptyTileIndex());
             i++;
-            mPuzzleStateViz.SetPuzzleState(mCurrentState);
+            mPuzzleStateViz.SetPuzzleState(mCurrentState.Value);
             yield return null;
         }
     }
@@ -98,18 +102,18 @@ public class PuzzleSolver : MonoBehaviour
         StartCoroutine(Coroutine_Solve());
     }
 
-    void OnChangeCurrentNode(PathFinderNode<PuzzleState> node)
-    {
-        mPuzzleStateViz.SetPuzzleState(node.Location);
-    }
+    //void OnChangeCurrentNode(PathFinderNode<PuzzleState> node)
+    //{
+    //    mPuzzleStateViz.SetPuzzleState(node.Location);
+    //}
 
     IEnumerator ShowSolution()
     {
         List<PuzzleState> reverseSolution = new List<PuzzleState>();
-        PathFinderNode<PuzzleState> node = mAstarSolver.CurrentNode;
+        PathFinder<PuzzleState>.PathFinderNode node = mAstarSolver.CurrentNode;
         while(node != null)
         {
-            reverseSolution.Add(node.Location);
+            reverseSolution.Add(node.Location.Value);
             node = node.Parent;
         }
 

@@ -8,14 +8,25 @@ using System.Runtime.Serialization;
 namespace GameAI
 {
     namespace PathFinding
-    {
-        public class RectGridCell
+    { 
+        public class RectGridCell : Node<Vector2Int>
         {
-            public Vector2Int Index { get; set; }
             public bool IsWalkable { get; set; }
             public float Cost { get; set; }
-            public RectGridCell()
-            { }
+
+            private RectGridMap mRectGridMap;
+            public RectGridCell(Vector2Int value) : base(value)
+            {
+            }
+            public RectGridCell(RectGridMap gridMap, Vector2Int value) : base(value)
+            {
+                mRectGridMap = gridMap;
+            }
+
+            public override List<Node<Vector2Int>> GetNeighbours()
+            {
+                return mRectGridMap.GetNeighbours(this);
+            }
         }
 
         /// <summary>
@@ -28,7 +39,7 @@ namespace GameAI
         /// There are other example implementation of map grid as well.
         /// I will implement a few other types of map grids for demonstration.
         /// </summary>
-        public class RectGridMap : IMap<RectGridCell>
+        public class RectGridMap
         {
             // the max number of colums in the grid.
             protected int mX;
@@ -60,13 +71,12 @@ namespace GameAI
                 {
                     for (int j = 0; j < mY; ++j)
                     {
-                        RectGridCell data = new RectGridCell();
+                        mIndices[i,j] = new Vector2Int(i, j);
+                        RectGridCell data = new RectGridCell(this, mIndices[i, j]);
                         data.Cost = 1.0f;
                         data.IsWalkable = true;
 
-                        mIndices[i,j] = new Vector2Int(i, j);
                         mMapCell[i, j] = data;
-                        data.Index = mIndices[i, j];
                     }
                 }                
             }
@@ -155,12 +165,12 @@ namespace GameAI
             // Get the neighbours. This method must be implemented for 
             // any type of grid that you create. For a rectangular
             // grid it is getting the 8 adjacent indices
-            public List<RectGridCell> GetNeighbours(RectGridCell loc)
+            public List<Node<Vector2Int>> GetNeighbours(RectGridCell loc)
             {
-                List<RectGridCell> neighbours = new List<RectGridCell>();
+                List<Node<Vector2Int>> neighbours = new List<Node<Vector2Int>>();
 
-                int x = loc.Index.x;
-                int y = loc.Index.y;
+                int x = loc.Value.x;
+                int y = loc.Value.y;
 
                 // Check up.
                 if (y < mY - 1)
@@ -256,21 +266,21 @@ namespace GameAI
                 return neighbours;
             }
 
-            public static float GetManhattanCost(RectGridCell a, RectGridCell b)
+            public static float GetManhattanCost(Vector2Int a, Vector2Int b)
             {
-                return Mathf.Abs(a.Index.x - b.Index.x) + Mathf.Abs(a.Index.y - b.Index.y);
+                return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
             }
 
-            public static float GetEuclideanCost(RectGridCell a, RectGridCell b)
+            public static float GetEuclideanCost(Vector2Int a, Vector2Int b)
             {
                 return GetCostBetweenTwoCells(a, b);
             }
 
-            public static float GetCostBetweenTwoCells(RectGridCell a, RectGridCell b)
+            public static float GetCostBetweenTwoCells(Vector2Int a, Vector2Int b)
             {
                 return Mathf.Sqrt(
-                        (a.Index.x - b.Index.x) * (a.Index.x - b.Index.x) + 
-                        (a.Index.y - b.Index.y) * (a.Index.y - b.Index.y)
+                        (a.x - b.x) * (a.x - b.x) + 
+                        (a.y - b.y) * (a.y - b.y)
                     );
             }
         }

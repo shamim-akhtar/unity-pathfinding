@@ -614,7 +614,6 @@ GameObject:
   m_Component:
   - component: {fileID: 196420313}
   - component: {fileID: 196420314}
-  - component: {fileID: 196420315}
   m_Layer: 0
   m_Name: GraphMap_Viz_Play
   m_TagString: Untagged
@@ -651,22 +650,7 @@ MonoBehaviour:
   SceneName: graphdemo
   PrefabGraphNode: {fileID: 5967998560493205313, guid: 5fae317cf5fd1b54f8a6900c1c3a0c3d, type: 3}
   ParentForGraphNodes: {fileID: 1032374008}
-  mLineFactory: {fileID: 196420315}
   PrefabNPC: {fileID: 4714171364368681874, guid: 9580817ae7254d64c9af4c94367e78a4, type: 3}
---- !u!114 &196420315
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 196420312}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 814b7461d62334e188b3a43681f700b0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  linePrefab: {fileID: 1000013289361224, guid: 67db316532143b248b19bb424019b871, type: 3}
-  maxLines: 100
 --- !u!1 &244675500
 GameObject:
   m_ObjectHideFlags: 0

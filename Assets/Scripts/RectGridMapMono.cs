@@ -29,16 +29,4 @@ public class RectGridMapMono : MonoBehaviour
     {
         RectGridMap.Save(mPathFinderMap, mFilename);
     }
-
-    // You will need to implement this based on your grid cell size.
-    public Vector2Int GetWorldPosToGridIndex(Vector3 pos)
-    {
-        int x = (int)(pos.x + 0.5f);
-        int y = (int)(pos.y + 0.5f);
-
-        if (x >= 0 && x < Cols && y >= 0 && y < Rows)
-            return mPathFinderMap.GetCell(x, y).Index;
-
-        return Vector2Int.zero;
-    }
 }

@@ -81,7 +81,7 @@ public class SampleGraph : Graph<GraphNodeData>
             // the edges.
             for (int i = 0; i < graph.Nodes.Count; ++i)
             {
-                List<GraphNode<GraphNodeData>> neighbours = graph.Nodes[i].Neighbors;
+                List<Node<GraphNodeData>> neighbours = graph.Nodes[i].Neighbours;
                 if (neighbours != null)
                 {
                     bf.Serialize(file, neighbours.Count);
@@ -160,21 +160,21 @@ public class SampleGraph : Graph<GraphNodeData>
         return true;
     }
 
-    public static float GetManhattanCost(GraphNode<GraphNodeData> a, GraphNode<GraphNodeData> b)
+    public static float GetManhattanCost(GraphNodeData a, GraphNodeData b)
     {
-        return Mathf.Abs(a.Value.Point.x - b.Value.Point.x) + Mathf.Abs(a.Value.Point.y - b.Value.Point.y);
+        return Mathf.Abs(a.Point.x - b.Point.x) + Mathf.Abs(a.Point.y - b.Point.y);
     }
 
-    public static float GetEuclideanCost(GraphNode<GraphNodeData> a, GraphNode<GraphNodeData> b)
+    public static float GetEuclideanCost(GraphNodeData a, GraphNodeData b)
     {
         return GetCostBetweenTwoCells(a, b);
     }
 
-    public static float GetCostBetweenTwoCells(GraphNode<GraphNodeData> a, GraphNode<GraphNodeData> b)
+    public static float GetCostBetweenTwoCells(GraphNodeData a, GraphNodeData b)
     {
         return Mathf.Sqrt(
-                (a.Value.Point.x - b.Value.Point.x) * (a.Value.Point.x - b.Value.Point.x) +
-                (a.Value.Point.y - b.Value.Point.y) * (a.Value.Point.y - b.Value.Point.y)
+                (a.Point.x - b.Point.x) * (a.Point.x - b.Point.x) +
+                (a.Point.y - b.Point.y) * (a.Point.y - b.Point.y)
             );
     }
 

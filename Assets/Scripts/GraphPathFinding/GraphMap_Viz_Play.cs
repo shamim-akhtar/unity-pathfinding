@@ -10,7 +10,7 @@ public class GraphMap_Viz_Play : MonoBehaviour
 
     public Transform ParentForGraphNodes;
 
-    public LineFactory mLineFactory;
+    //public LineFactory mLineFactory;
     public GameObject PrefabNPC;
     private GraphPathFinder_Viz mGraphPathFinder_Viz;
 
@@ -71,8 +71,9 @@ public class GraphMap_Viz_Play : MonoBehaviour
         GameObject b = mGraphNodeGameObjDic[to.Value];
 
         b.GetComponent<GraphNode_Viz>().SetColor(Color.green);
-        Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.cyan);
-        a.GetComponent<GraphNode_Viz>().mLine = line;
+        //Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.cyan);
+        //a.GetComponent<GraphNode_Viz>().mLine = line;
+        a.GetComponent<GraphNode_Viz>().ShowNeighbourLines(true);
     }
 
     public void RayCast_SetGoal()

@@ -6,47 +6,24 @@ namespace GameAI
 {
     namespace PathFinding
     {
-        public class GraphNode<T>
+        public class GraphNode<T> : Node<T>
         {
-            private List<float> costs;
-            private T data;
-            private List<GraphNode<T>> neighbors = null;
+            private List<float> mCosts = new List<float>();
+            private List<Node<T>> mNeighbours = new List<Node<T>>();
 
-            public T Value
+            public GraphNode(T value) : base(value)
+            { }
+
+            public GraphNode(T value, List<Node<T>> neighbours) : base(value)
+            {
+                mNeighbours = neighbours;
+            }
+
+            public List<Node<T>> Neighbours
             {
                 get
                 {
-                    return data;
-                }
-                set
-                {
-                    data = value;
-                }
-            }
-
-            public GraphNode() { }
-            public GraphNode(T value)
-            {
-                data = value;
-            }
-            public GraphNode(T value, List<GraphNode<T>> neighbors)
-            {
-                data = value;
-                this.neighbors = neighbors;
-            }
-
-            public List<GraphNode<T>> Neighbors
-            {
-                get
-                {
-                    if (neighbors == null)
-                        neighbors = new List<GraphNode<T>>();
-
-                    return neighbors;
-                }
-                set
-                {
-                    neighbors = value;
+                    return mNeighbours;
                 }
             }
 
@@ -54,15 +31,17 @@ namespace GameAI
             {
                 get
                 {
-                    if (costs == null)
-                        costs = new List<float>();
-
-                    return costs;
+                    return mCosts;
                 }
+            }
+
+            public override List<Node<T>> GetNeighbours()
+            {
+                return mNeighbours;
             }
         }
 
-        public class Graph<T> : IMap<GraphNode<T>>
+        public class Graph<T>
         {
             private List<GraphNode<T>> nodeSet;
 
@@ -100,18 +79,13 @@ namespace GameAI
 
             public void AddDirectedEdge(GraphNode<T> from, GraphNode<T> to, float cost)
             {
-                from.Neighbors.Add(to);
+                from.Neighbours.Add(to);
                 from.Costs.Add(cost);
                 mOnAddDirectedEdge?.Invoke(from, to);
             }
 
             public void AddUndirectedEdge(GraphNode<T> from, GraphNode<T> to, float cost)
             {
-                //from.Neighbors.Add(to);
-                //from.Costs.Add(cost);
-
-                //to.Neighbors.Add(from);
-                //to.Costs.Add(cost);
                 AddDirectedEdge(from, to, cost);
                 AddDirectedEdge(to, from, cost);
             }
@@ -147,11 +121,11 @@ namespace GameAI
                 // enumerate through each node in the nodeSet, removing edges to this node
                 foreach (GraphNode<T> gnode in nodeSet)
                 {
-                    int index = gnode.Neighbors.IndexOf(nodeToRemove);
+                    int index = gnode.Neighbours.IndexOf(nodeToRemove);
                     if (index != -1)
                     {
                         // remove the reference to the node and associated cost
-                        gnode.Neighbors.RemoveAt(index);
+                        gnode.Neighbours.RemoveAt(index);
                         gnode.Costs.RemoveAt(index);
                     }
                 }
@@ -170,10 +144,6 @@ namespace GameAI
             public float Count
             {
                 get { return nodeSet.Count; }
-            }
-            public List<GraphNode<T>> GetNeighbours(GraphNode<T> loc)
-            {
-                return loc.Neighbors;
             }
         }
     }

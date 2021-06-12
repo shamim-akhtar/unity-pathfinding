@@ -111,7 +111,7 @@ public class PathFinderDemo : MonoBehaviour
     {
         if (mPathFinder_Viz.mPathFinder == null)
             return;
-        if (mPathFinder_Viz.mPathFinder != null && mPathFinder_Viz.mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
+        if (mPathFinder_Viz.mPathFinder != null && mPathFinder_Viz.mPathFinder.Status == PathFinderStatus.RUNNING)
         {
             // disable selection when running.
             if (mToggleCostFunction.On)
@@ -139,12 +139,12 @@ public class PathFinderDemo : MonoBehaviour
         {
             case CostFunctionType.MANHATTAN:
                 {
-                    mPathFinder_Viz.mPathFinder.SetHeuristicCostFunction(RectGridMap.GetManhattanCost);
+                    mPathFinder_Viz.mPathFinder.HCostFunction = RectGridMap.GetManhattanCost;
                     break;
                 }
             case CostFunctionType.EUCLIDEN:
                 {
-                    mPathFinder_Viz.mPathFinder.SetHeuristicCostFunction(RectGridMap.GetEuclideanCost);
+                    mPathFinder_Viz.mPathFinder.HCostFunction = RectGridMap.GetEuclideanCost;
                     break;
                 }
         }
@@ -170,7 +170,7 @@ public class PathFinderDemo : MonoBehaviour
 
     public void OnSelectAlgorithm()
     {
-        if(mPathFinder_Viz.mPathFinder != null && mPathFinder_Viz.mPathFinder.Status == PathFinder<RectGridCell>.PathFinderStatus.RUNNING)
+        if(mPathFinder_Viz.mPathFinder != null && mPathFinder_Viz.mPathFinder.Status == PathFinderStatus.RUNNING)
         {
             // disable selection when running.
             mLeanSwitchAlgo.State = (int)mPathFindingAlgo;
@@ -216,7 +216,7 @@ public class PathFinderDemo : MonoBehaviour
         Debug.Log("Enabled switch.");
     }
 
-    public void OnChangeCurrentNode(PathFinderNode<RectGridCell> node)
+    public void OnChangeCurrentNode(PathFinder<Vector2Int>.PathFinderNode node)
     {
         mFCostText.text = node.Fcost.ToString("F2");
         mGCostText.text = node.GCost.ToString("F2");
