@@ -14,8 +14,8 @@ public class GraphNode_Viz : MonoBehaviour
     //public Line mLine;
     List<GameObject> mLines = new List<GameObject>();
 
-    float mOriginalCameraSize = 10.0f;
-    float mLineWidth = 0.2f;
+    public float mOriginalCameraSize = 10.0f;
+    float mLineWidth = 0.3f;
 
     public void SetColor(Color color)
     {
@@ -27,11 +27,11 @@ public class GraphNode_Viz : MonoBehaviour
         SetColor(DEFAULT_COLOR);
     }
 
-    private void Start()
-    {
-        SetColor(DEFAULT_COLOR);
-        mOriginalCameraSize = Camera.main.orthographicSize;
-    }
+    //private void Start()
+    //{
+    //    SetColor(DEFAULT_COLOR);
+    //    mOriginalCameraSize = Camera.main.orthographicSize;
+    //}
 
     private LineRenderer GetOrCreateLine(int index)
     {
@@ -53,8 +53,8 @@ public class GraphNode_Viz : MonoBehaviour
             Vector3 endPoint = new Vector3(Node.Neighbours[i].Value.Point.x, Node.Neighbours[i].Value.Point.y, 0.0f);
             LineRenderer lr = GetOrCreateLine(i);
             lr.material = new Material(Shader.Find("Sprites/Default"));
-            lr.startColor = Color.white;
-            lr.endColor = Color.black;
+            lr.startColor = Color.red;
+            lr.endColor = Color.blue;
             lr.startWidth = mLineWidth;
             lr.endWidth = mLineWidth;
 

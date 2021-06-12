@@ -205,7 +205,7 @@ public class PathFinderDemo : MonoBehaviour
         //// you cannot switch algorithm when path finding is running.
         //mLeanSwitchAlgo.gameObject.SetActive(false);
         //mResetButton.gameObject.SetActive(false);
-        Debug.Log("Disabled switch.");
+        //Debug.Log("Disabled switch.");
     }
 
     void OnPathFindingCompleted()
@@ -213,7 +213,7 @@ public class PathFinderDemo : MonoBehaviour
         //// you cannot switch algorithm when path finding is running.
         //mLeanSwitchAlgo.gameObject.SetActive(true);
         //mResetButton.gameObject.SetActive(true);
-        Debug.Log("Enabled switch.");
+        //Debug.Log("Enabled switch.");
     }
 
     public void OnChangeCurrentNode(PathFinder<Vector2Int>.PathFinderNode node)

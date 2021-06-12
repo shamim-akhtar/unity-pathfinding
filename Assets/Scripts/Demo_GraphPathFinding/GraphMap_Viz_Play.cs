@@ -23,7 +23,6 @@ public class GraphMap_Viz_Play : MonoBehaviour
     {
         mGraph.mOnAddNode += OnAddNode;
         mGraph.mOnAddDirectedEdge += OnAddDirectedEdge;
-        SampleGraph.Load(mGraph, SceneName);
 
         // create the dummy NPC
 
@@ -31,6 +30,12 @@ public class GraphMap_Viz_Play : MonoBehaviour
         mGraphPathFinder_Viz = npc.AddComponent<GraphPathFinder_Viz>();
         mGraphPathFinder_Viz.mGraphMap_Viz_Play = this;
 
+        LoadGraph();
+    }
+
+    private void LoadGraph()
+    {
+        SampleGraph.Load(mGraph, SceneName);
         SetRandomStartPoint();
         mGraphPathFinder_Viz.transform.position = new Vector3(
             mGraphPathFinder_Viz.StartNode.Value.Point.x,
@@ -59,9 +64,13 @@ public class GraphMap_Viz_Play : MonoBehaviour
             obj.transform.SetParent(ParentForGraphNodes);
         }
 
-        obj.GetComponent<GraphNode_Viz>().Data = node.Value;
-        obj.GetComponent<GraphNode_Viz>().Node = node;
-        obj.GetComponent<GraphNode_Viz>().SetColor(Color.yellow);
+        GraphNode_Viz viz = obj.GetComponent<GraphNode_Viz>();
+        viz.Data = node.Value;
+        viz.Node = node;
+        Color c = Color.cyan;
+        c.a = 0.2f;
+        viz.SetColor(c);
+        viz.mOriginalCameraSize = Camera.main.orthographicSize;
         mGraphNodeGameObjDic.Add(node.Value, obj);
     }
 
@@ -70,9 +79,6 @@ public class GraphMap_Viz_Play : MonoBehaviour
         GameObject a = mGraphNodeGameObjDic[from.Value];
         GameObject b = mGraphNodeGameObjDic[to.Value];
 
-        b.GetComponent<GraphNode_Viz>().SetColor(Color.green);
-        //Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.cyan);
-        //a.GetComponent<GraphNode_Viz>().mLine = line;
         a.GetComponent<GraphNode_Viz>().ShowNeighbourLines(true);
     }
 

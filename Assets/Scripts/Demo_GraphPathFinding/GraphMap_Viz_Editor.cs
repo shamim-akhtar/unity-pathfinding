@@ -149,7 +149,11 @@ public class GraphMap_Viz_Editor : MonoBehaviour
                 }
 
                 GraphNodeData data = new GraphNodeData(obj.name, obj.transform.position.x, obj.transform.position.y);
-                obj.GetComponent<GraphNode_Viz>().Data = data;
+
+                GraphNode_Viz viz = obj.GetComponent<GraphNode_Viz>();
+                viz.Data = data;
+                viz.SetColor(viz.DEFAULT_COLOR);
+                viz.mOriginalCameraSize = Camera.main.orthographicSize;
                 mGraphNodeGameObjDic.Add(data, obj);
             }
         }

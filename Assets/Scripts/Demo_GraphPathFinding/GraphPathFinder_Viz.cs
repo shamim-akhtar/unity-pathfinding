@@ -132,7 +132,7 @@ public class GraphPathFinder_Viz : MonoBehaviour
                 node = node.Parent;
             }
 
-            StopCoroutine("Coroutine_MoveTo");
+            //StopCoroutine("Coroutine_MoveTo");
             for (int i = reverseIndices.Count - 1; i >= 0; i -= 1)
             {
                 yield return StartCoroutine(Coroutine_MoveTo(reverseIndices[i], 2.0f));
