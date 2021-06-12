@@ -28,8 +28,6 @@ public class GraphMap_Viz_Editor : MonoBehaviour
     }
     #region Private data
     private GameObject mSelectedGraphNode;
-    //private GameObject mSelectedGraphNode2;
-    //ModeType mMode = ModeType.SELECTION;
     Patterns.FiniteStateMachine mFsm = new Patterns.FiniteStateMachine();
     #endregion
 
@@ -71,6 +69,7 @@ public class GraphMap_Viz_Editor : MonoBehaviour
                 mEditor.SetSelectGraphNode(hit.transform.gameObject);
                 mEditor.AddSelectedGameObjectToGraph();
                 mEditor.mOnSelectedGraphNode?.Invoke(mEditor.mSelectedGraphNode.GetComponent<GraphNode_Viz>());
+                mEditor.SetMode(ModeType.JOINING);
             }
             else
             {
@@ -171,10 +170,15 @@ public class GraphMap_Viz_Editor : MonoBehaviour
 
     public void AddSelectedGameObjectToGraph()
     {
-        if (mSelectedGraphNode == null)
+        AddGameObjectToGraph(mSelectedGraphNode);
+    }
+
+    public void AddGameObjectToGraph(GameObject obj)
+    {
+        if (obj == null)
             return;
 
-        GraphNodeData data = mSelectedGraphNode.GetComponent<GraphNode_Viz>().Data;
+        GraphNodeData data = obj.GetComponent<GraphNode_Viz>().Data;
 
         if (mGraph.Contains(data))
             return;
@@ -193,9 +197,7 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         GameObject a = mGraphNodeGameObjDic[from.Value];
         GameObject b = mGraphNodeGameObjDic[to.Value];
 
-        b.GetComponent<GraphNode_Viz>().SetColor(Color.green);
-        //Line line = mLineFactory.GetLine(a.transform.position, b.transform.position, 0.1f, Color.cyan);
-        //a.GetComponent<GraphNode_Viz>().mLine = line;
+        //b.GetComponent<GraphNode_Viz>().SetColor(Color.green);
         a.GetComponent<GraphNode_Viz>().ShowNeighbourLines(true);
     }
 
@@ -237,15 +239,30 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         // check if b is a graphnode if not then change the state to selection.
         if(mGraph.Contains(bViz.Data))
         {
-            // Show visual connection.
             GraphNode_Viz aViz = mSelectedGraphNode.GetComponent<GraphNode_Viz>();
 
             // Add the edge to graph.
-            mGraph.AddUndirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
+            //mGraph.AddUndirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
+            mGraph.AddDirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
+
+
+            SetSelectGraphNode(b);
+            mOnSelectedGraphNode?.Invoke(mSelectedGraphNode.GetComponent<GraphNode_Viz>());
         }
         else
         {
-            SetMode(ModeType.SELECTION);
+            //SetMode(ModeType.SELECTION);
+
+            AddGameObjectToGraph(b);
+
+            // add as a connection.
+
+            GraphNode_Viz aViz = mSelectedGraphNode.GetComponent<GraphNode_Viz>();
+            mGraph.AddDirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
+
+            SetSelectGraphNode(b);
+            mOnSelectedGraphNode?.Invoke(mSelectedGraphNode.GetComponent<GraphNode_Viz>());
+            SetMode(ModeType.JOINING);
         }
     }
 
@@ -260,11 +277,10 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         // check if the selected node is a already in graph.
         if (mGraph.Contains(obj.GetComponent<GraphNode_Viz>().Data))
         {
+            //mOnUnSelectGraphNode?.Invoke(mSelectedGraphNode);
             // change the mode to JOINING.
             mFsm.SetCurrentState((int)ModeType.JOINING);
         }
-
-        //mOnSelectedGraphNode?.Invoke(obj.GetComponent<GraphNode_Viz>());
     }
 
     public void SetUnSelectGraphNode()
@@ -288,12 +304,9 @@ public class GraphMap_Viz_Editor : MonoBehaviour
     #region Delegates Implementation
     void OnSelectedGraphNode(GraphNode_Viz viz)
     {
-        //if (obj == null) return;
-        // viz = obj.GetComponent<GraphNode_Viz>();
         if (viz == null) return;
 
         viz.SetColor(Color.red);
-        // Show neighbours colors.
         if (mGraph.Contains(viz.Data))
         {
             for (int i = 0; i < viz.Node.Neighbours.Count; ++i)
@@ -312,9 +325,7 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         GraphNode_Viz viz = obj.GetComponent<GraphNode_Viz>();
         if (viz)
         {
-            viz.UnSetColor();
-            // Reset neighbours colors.
-
+            viz.SetColor(Color.yellow);
             if (mGraph.Contains(viz.Data))
             {
                 for (int i = 0; i < viz.Node.Neighbours.Count; ++i)
@@ -322,7 +333,10 @@ public class GraphMap_Viz_Editor : MonoBehaviour
                     GameObject neighbourObj = mGraphNodeGameObjDic[viz.Node.Neighbours[i].Value];
                     if (neighbourObj != null)
                     {
-                        neighbourObj.GetComponent<GraphNode_Viz>().UnSetColor();
+                        //neighbourObj.GetComponent<GraphNode_Viz>().UnSetColor();
+
+                        // we set to yellow because these nodes are already added to the graph.
+                        neighbourObj.GetComponent<GraphNode_Viz>().SetColor(Color.yellow);
                     }
                 }
             }

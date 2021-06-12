@@ -9,7 +9,7 @@ public class GraphNode_Viz : MonoBehaviour
     public GraphNode<GraphNodeData> Node { get; set; }
     public SpriteRenderer mInnerSprite;
 
-    private Stack<Color> mColorStack = new Stack<Color>();
+    public Color DEFAULT_COLOR = new Color(0.2f, 0.2f, 0.2f, 0.2f);
 
     //public Line mLine;
     List<GameObject> mLines = new List<GameObject>();
@@ -19,30 +19,17 @@ public class GraphNode_Viz : MonoBehaviour
 
     public void SetColor(Color color)
     {
-        mColorStack.Push(color);
-        mInnerSprite.color = mColorStack.Peek();
-    }
-    public void UnSetColor()
-    {
-        mColorStack.Pop();
-        mInnerSprite.color = mColorStack.Peek();
+        mInnerSprite.color = color;
     }
 
     public void ResetColor()
     {
-        while(mColorStack.Count > 1)
-        {
-            mColorStack.Pop();
-        }
-        mInnerSprite.color = mColorStack.Peek();
+        SetColor(DEFAULT_COLOR);
     }
 
     private void Start()
     {
-        Color c = Color.gray;
-        c.a = 0.2f;
-        SetColor(c);
-
+        SetColor(DEFAULT_COLOR);
         mOriginalCameraSize = Camera.main.orthographicSize;
     }
 
@@ -66,8 +53,8 @@ public class GraphNode_Viz : MonoBehaviour
             Vector3 endPoint = new Vector3(Node.Neighbours[i].Value.Point.x, Node.Neighbours[i].Value.Point.y, 0.0f);
             LineRenderer lr = GetOrCreateLine(i);
             lr.material = new Material(Shader.Find("Sprites/Default"));
-            lr.startColor = Color.green;
-            lr.endColor = Color.white;
+            lr.startColor = Color.white;
+            lr.endColor = Color.black;
             lr.startWidth = mLineWidth;
             lr.endWidth = mLineWidth;
 
