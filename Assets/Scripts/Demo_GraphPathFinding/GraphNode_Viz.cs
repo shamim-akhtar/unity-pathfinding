@@ -27,12 +27,6 @@ public class GraphNode_Viz : MonoBehaviour
         SetColor(DEFAULT_COLOR);
     }
 
-    //private void Start()
-    //{
-    //    SetColor(DEFAULT_COLOR);
-    //    mOriginalCameraSize = Camera.main.orthographicSize;
-    //}
-
     private LineRenderer GetOrCreateLine(int index)
     {
         if(index >= mLines.Count)

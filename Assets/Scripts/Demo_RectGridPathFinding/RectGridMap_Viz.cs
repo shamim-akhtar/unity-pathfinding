@@ -16,7 +16,7 @@ public class RectGridMap_Viz : RectGridMapMono
     [HideInInspector]
     public float GridCellHeight = 1f;
 
-    public Color COLOR_WALKABLE = new Color(0f, 0.0f, 1.0f, 0.0f);
+    public Color COLOR_WALKABLE = new Color(0f, 0.0f, 1.0f, 0.2f);
     public Color COLOR_NON_WALKABLE = new Color(0.0f, 0.0f, 0.0f, 1.0f);
     public Color COLOR_OPEN_LIST = new Color(0.0f, 0.0f, 1.0f, 0.3f);
     public Color COLOR_CLOSED_LIST = new Color(0.0f, 0.0f, 0.0f, 0.3f);
