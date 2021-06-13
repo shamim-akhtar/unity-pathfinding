@@ -15,7 +15,7 @@ public class GraphNode_Viz : MonoBehaviour
     List<GameObject> mLines = new List<GameObject>();
 
     public float mOriginalCameraSize = 10.0f;
-    float mLineWidth = 0.3f;
+    public float mLineWidth = 0.2f;
 
     public void SetColor(Color color)
     {

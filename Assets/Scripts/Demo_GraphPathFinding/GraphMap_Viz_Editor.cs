@@ -1,8 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using GameAI.PathFinding;
 using UnityEngine.SceneManagement;
+using Lean.Gui;
+using UnityEngine.EventSystems;
 
 public class GraphMap_Viz_Editor : MonoBehaviour
 {
@@ -10,6 +13,10 @@ public class GraphMap_Viz_Editor : MonoBehaviour
     public int mY = 10;
     public int mX = 10;
     public float mSpacing = 1.0f;
+
+    public LayerMask MapMask;
+    public LayerMask GraphNodeMask;
+    public FixedTouchField TouchPad;
 
     public GameObject PrefabGraphNode;
 
@@ -19,33 +26,81 @@ public class GraphMap_Viz_Editor : MonoBehaviour
     private Dictionary<GraphNodeData, GameObject> mGraphNodeGameObjDic = 
         new Dictionary<GraphNodeData, GameObject>();
 
+    //public Text mTextToggleCameraMode;
+    //public Text mTextToggleAddControlPts;
+    //public LeanToggle mToggleCameraMode;
+    //public LeanToggle mToggleAddControlPts;
+    public LeanSwitch mLeanSwitchMode;
+    public Text mTextMode;
 
-    //public LineFactory mLineFactory;
+    public CameraManiipulator2D mCameraManip;
 
     enum ModeType
     {
-        SELECTION,
-        JOINING,
+        CAMERA_MODE,
+        GRAPHNODE_ADD,
+        GRAPHNODE_SELECTION,
+        GRAPHNODE_JOINING,
     }
     #region Private data
     private GameObject mSelectedGraphNode;
     Patterns.FiniteStateMachine mFsm = new Patterns.FiniteStateMachine();
     #endregion
 
-    public class SelectionState : Patterns.State
+    public class CameraModeState : Patterns.State
     {
         public GraphMap_Viz_Editor mEditor;
 
-        public SelectionState(GraphMap_Viz_Editor ed) : base()
+        public CameraModeState(GraphMap_Viz_Editor ed) : base()
         {
             mEditor = ed;
-            ID = (int)ModeType.SELECTION;
-            Name = "SelectionState";
+            ID = (int)ModeType.CAMERA_MODE;
+            Name = "CameraModeState";
         }
 
         public override void Enter()
         {
             base.Enter();
+            SetCameraMovementMode(true);
+            mEditor.mTextMode.text = "Camera Mode";
+        }
+
+        public override void Exit()
+        {
+            base.Exit();
+            SetCameraMovementMode(false);
+        }
+
+        void SetCameraMovementMode(bool flag)
+        {
+            if (flag)
+            {
+                mEditor.mCameraManip.enabled = true;
+                mEditor.TouchPad.gameObject.SetActive(true);
+            }
+            else
+            {
+                mEditor.mCameraManip.enabled = false;
+                mEditor.TouchPad.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    public class GraphNodeAddState : Patterns.State
+    {
+        public GraphMap_Viz_Editor mEditor;
+
+        public GraphNodeAddState(GraphMap_Viz_Editor ed) : base()
+        {
+            mEditor = ed;
+            ID = (int)ModeType.GRAPHNODE_ADD;
+            Name = "GraphNodeAddState";
+        }
+
+        public override void Enter()
+        {
+            base.Enter();
+            mEditor.mTextMode.text = "Add Graph Points";
         }
 
         public override void Update()
@@ -53,6 +108,54 @@ public class GraphMap_Viz_Editor : MonoBehaviour
             base.Update();
             if (Input.GetMouseButtonDown(0))
             {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
+                RayCast_AddControlPoint();
+            }
+        }
+
+        public void RayCast_AddControlPoint()
+        {
+            Vector2 rayPos = new Vector2(
+                Camera.main.ScreenToWorldPoint(Input.mousePosition).x,
+                Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
+            RaycastHit2D hit = Physics2D.Raycast(rayPos, Vector2.zero, 0f, mEditor.MapMask);
+
+            if (hit)
+            {
+                mEditor.CreateGraphNodeAndAddToGraph(hit.point);
+            }
+        }
+    }
+
+    public class GraphNodeSelectionState : Patterns.State
+    {
+        public GraphMap_Viz_Editor mEditor;
+
+        public GraphNodeSelectionState(GraphMap_Viz_Editor ed) : base()
+        {
+            mEditor = ed;
+            ID = (int)ModeType.GRAPHNODE_SELECTION;
+            Name = "GraphNodeSelectionState";
+        }
+
+        public override void Enter()
+        {
+            base.Enter();
+            mEditor.mTextMode.text = "Topology";
+        }
+
+        public override void Update()
+        {
+            base.Update();
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
                 RayCast_SelectGraphNode();
             }
         }
@@ -62,15 +165,14 @@ public class GraphMap_Viz_Editor : MonoBehaviour
             Vector2 rayPos = new Vector2(
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).x,
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
-            RaycastHit2D hit = Physics2D.Raycast(rayPos, Vector2.zero, 0f);
+            RaycastHit2D hit = Physics2D.Raycast(rayPos, Vector2.zero, 0f, mEditor.GraphNodeMask);
 
             if (hit &&
                 hit.transform.gameObject.GetComponent<GraphNode_Viz>() != null)
             {
                 mEditor.SetSelectGraphNode(hit.transform.gameObject);
-                mEditor.AddSelectedGameObjectToGraph();
                 mEditor.mOnSelectedGraphNode?.Invoke(mEditor.mSelectedGraphNode.GetComponent<GraphNode_Viz>());
-                mEditor.SetMode(ModeType.JOINING);
+                mEditor.mFsm.SetCurrentState((int)ModeType.GRAPHNODE_JOINING);
             }
             else
             {
@@ -79,15 +181,15 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         }
     }
 
-    public class ConnectingState : Patterns.State
+    public class GraphNodeJoiningState : Patterns.State
     {
         public GraphMap_Viz_Editor mEditor;
 
-        public ConnectingState(GraphMap_Viz_Editor ed) : base()
+        public GraphNodeJoiningState(GraphMap_Viz_Editor ed) : base()
         {
             mEditor = ed;
-            ID = (int)ModeType.JOINING;
-            Name = "ConnectingState";
+            ID = (int)ModeType.GRAPHNODE_JOINING;
+            Name = "GraphNodeJoiningState";
         }
 
         public override void Enter()
@@ -100,6 +202,10 @@ public class GraphMap_Viz_Editor : MonoBehaviour
             base.Update();
             if (Input.GetMouseButtonDown(0))
             {
+                if (EventSystem.current.IsPointerOverGameObject())
+                {
+                    return;
+                }
                 RayCast_ConnectGraphNode();
             }
         }
@@ -109,21 +215,16 @@ public class GraphMap_Viz_Editor : MonoBehaviour
             Vector2 rayPos = new Vector2(
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).x,
                 Camera.main.ScreenToWorldPoint(Input.mousePosition).y);
-            RaycastHit2D hit = Physics2D.Raycast(rayPos, Vector2.zero, 0f);
+            RaycastHit2D hit = Physics2D.Raycast(rayPos, Vector2.zero, 0f, mEditor.GraphNodeMask);
 
-            if (hit &&
-                hit.transform.gameObject.GetComponent<GraphNode_Viz>() != null 
-                //&& hit.transform.gameObject != mSelectedGraphNode 
-                //&& ObjectNotInNeighbour(mSelectedGraphNode, hit.transform.gameObject)
-                )
+            if (hit && hit.transform.gameObject.GetComponent<GraphNode_Viz>() != null)
             {
-                //hit.transform.gameObject.GetComponent<GraphNode_Viz>().SetColor(Color.cyan);
                 mEditor.ConnectGraph(hit.transform.gameObject);
             }
             else
             {
                 mEditor.SetUnSelectGraphNode();
-                mEditor.SetMode(ModeType.SELECTION);
+                mEditor.mFsm.SetCurrentState((int)ModeType.GRAPHNODE_SELECTION);
             }
         }
     }
@@ -133,44 +234,88 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         mGraph.mOnAddNode += OnAddNode;
         mGraph.mOnAddDirectedEdge += OnAddDirectedEdge;
 
-        for(int i = 0; i < mX; ++i)
-        {
-            for(int j = 0; j < mY; ++j)
-            {
-                float x = i * mSpacing;
-                float y = j * mSpacing;
-                GameObject obj = Instantiate(PrefabGraphNode, new Vector3(x, y, 0.0f), Quaternion.identity);
-                string name = "node_" + i.ToString() + "_" + j.ToString();
-                obj.name = name;
-                obj.GetComponent<ConstantScreenSizeForSprite>().Camera = Camera.main;
-
-                if(ParentForGraphNodes != null)
-                {
-                    obj.transform.SetParent(ParentForGraphNodes);
-                }
-
-                GraphNodeData data = new GraphNodeData(obj.name, obj.transform.position.x, obj.transform.position.y);
-
-                GraphNode_Viz viz = obj.GetComponent<GraphNode_Viz>();
-                viz.Data = data;
-                viz.SetColor(viz.DEFAULT_COLOR);
-                viz.mOriginalCameraSize = Camera.main.orthographicSize;
-                mGraphNodeGameObjDic.Add(data, obj);
-            }
-        }
-
-        AdjustCameraView();
-
         // set all delegates
         mOnSelectedGraphNode += OnSelectedGraphNode;
         mOnUnSelectGraphNode += OnUnSelectGraphNode;
         //mOnConnectGraphNodes += OnConnectGraphNodes;
 
         //
-        mFsm.Add(new SelectionState(this));
-        mFsm.Add(new ConnectingState(this));
+        mFsm.Add(new CameraModeState(this));
+        mFsm.Add(new GraphNodeSelectionState(this));
+        mFsm.Add(new GraphNodeJoiningState(this));
+        mFsm.Add(new GraphNodeAddState(this));
 
-        mFsm.SetCurrentState((int)ModeType.SELECTION);
+        mFsm.SetCurrentState((int)ModeType.CAMERA_MODE);
+    }
+
+    public void OnAddNode(GraphNode<GraphNodeData> node)
+    {
+        GameObject obj = mGraphNodeGameObjDic[node.Value];
+        obj.GetComponent<GraphNode_Viz>().Node = node;
+        obj.GetComponent<GraphNode_Viz>().SetColor(Color.yellow);
+    }
+    void OnAddDirectedEdge(GraphNode<GraphNodeData> from, GraphNode<GraphNodeData> to)
+    {
+        GameObject a = mGraphNodeGameObjDic[from.Value];
+        GameObject b = mGraphNodeGameObjDic[to.Value];
+
+        a.GetComponent<GraphNode_Viz>().ShowNeighbourLines(true);
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+        mFsm.Update();
+    }
+
+    public void CreateGraphNodeAndAddToGraph(Vector3 position)
+    {
+        GameObject obj = Instantiate(PrefabGraphNode, position, Quaternion.identity);
+        string name = "node_" + position.x.ToString() + "_" + position.y.ToString();
+        obj.name = name;
+        obj.GetComponent<ConstantScreenSizeForSprite>().Camera = Camera.main;
+
+        if (ParentForGraphNodes != null)
+        {
+            obj.transform.SetParent(ParentForGraphNodes);
+        }
+
+        GraphNodeData data = new GraphNodeData(obj.name, obj.transform.position.x, obj.transform.position.y);
+
+        GraphNode_Viz viz = obj.GetComponent<GraphNode_Viz>();
+        viz.Data = data;
+        viz.SetColor(viz.DEFAULT_COLOR);
+        viz.mOriginalCameraSize = Camera.main.orthographicSize;
+        mGraphNodeGameObjDic.Add(data, obj);
+
+        AddGameObjectToGraph(obj);
+    }
+
+    public bool ObjectNotInNeighbour(GameObject parent, GameObject child)
+    {
+        GraphNode_Viz p = parent.GetComponent<GraphNode_Viz>();
+        GraphNode_Viz c = parent.GetComponent<GraphNode_Viz>();
+
+        for(int i = 0; i < p.Node.Neighbours.Count; ++i)
+        {
+            if (c.Node.Value.Equals(p.Node.Neighbours[i].Value))
+                return false;
+        }
+        return true;
+    }
+
+    public void SetSelectGraphNode(GameObject obj)
+    {
+        if (mSelectedGraphNode != null)
+        {
+            mOnUnSelectGraphNode?.Invoke(mSelectedGraphNode);
+        }
+        mSelectedGraphNode = obj;
+
+        if (mGraph.Contains(obj.GetComponent<GraphNode_Viz>().Data))
+        {
+            mFsm.SetCurrentState((int)ModeType.GRAPHNODE_JOINING);
+        }
     }
 
     public void AddSelectedGameObjectToGraph()
@@ -191,53 +336,6 @@ public class GraphMap_Viz_Editor : MonoBehaviour
         mGraph.AddNode(new GraphNode<GraphNodeData>(data));
     }
 
-    public void OnAddNode(GraphNode<GraphNodeData> node)
-    {
-        GameObject obj = mGraphNodeGameObjDic[node.Value];
-        obj.GetComponent<GraphNode_Viz>().Node = node;
-        obj.GetComponent<GraphNode_Viz>().SetColor(Color.yellow);
-    }
-    void OnAddDirectedEdge(GraphNode<GraphNodeData> from, GraphNode<GraphNodeData> to)
-    {
-        GameObject a = mGraphNodeGameObjDic[from.Value];
-        GameObject b = mGraphNodeGameObjDic[to.Value];
-
-        //b.GetComponent<GraphNode_Viz>().SetColor(Color.green);
-        a.GetComponent<GraphNode_Viz>().ShowNeighbourLines(true);
-    }
-
-    public void AdjustCameraView()
-    {
-        //ParentForGraphNodes.
-        //mGraph.CalculateExtent();
-        //Camera.main.transform.position = new Vector3(mGraph.Extent.center.x, mGraph.Extent.center.y, -10.0f);
-        //Camera.main.orthographicSize = 1.2f * mGraph.Extent.height / 2.0f;
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        mFsm.Update();
-    }
-
-    void SetMode(ModeType type)
-    {
-        mFsm.SetCurrentState((int)type);
-    }
-
-    public bool ObjectNotInNeighbour(GameObject parent, GameObject child)
-    {
-        GraphNode_Viz p = parent.GetComponent<GraphNode_Viz>();
-        GraphNode_Viz c = parent.GetComponent<GraphNode_Viz>();
-
-        for(int i = 0; i < p.Node.Neighbours.Count; ++i)
-        {
-            if (c.Node.Value.Equals(p.Node.Neighbours[i].Value))
-                return false;
-        }
-        return true;
-    }
-
     public void ConnectGraph(GameObject b)
     {
         GraphNode_Viz bViz = b.GetComponent<GraphNode_Viz>();
@@ -247,17 +345,13 @@ public class GraphMap_Viz_Editor : MonoBehaviour
             GraphNode_Viz aViz = mSelectedGraphNode.GetComponent<GraphNode_Viz>();
 
             // Add the edge to graph.
-            //mGraph.AddUndirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
             mGraph.AddDirectedEdge(aViz.Node, bViz.Node, GraphNodeData.Distance(aViz.Node.Value, bViz.Node.Value));
-
 
             SetSelectGraphNode(b);
             mOnSelectedGraphNode?.Invoke(mSelectedGraphNode.GetComponent<GraphNode_Viz>());
         }
         else
         {
-            //SetMode(ModeType.SELECTION);
-
             AddGameObjectToGraph(b);
 
             // add as a connection.
@@ -267,24 +361,7 @@ public class GraphMap_Viz_Editor : MonoBehaviour
 
             SetSelectGraphNode(b);
             mOnSelectedGraphNode?.Invoke(mSelectedGraphNode.GetComponent<GraphNode_Viz>());
-            SetMode(ModeType.JOINING);
-        }
-    }
-
-    public void SetSelectGraphNode(GameObject obj)
-    {
-        if (mSelectedGraphNode != null)
-        {
-            mOnUnSelectGraphNode?.Invoke(mSelectedGraphNode);
-        }
-        mSelectedGraphNode = obj;
-
-        // check if the selected node is a already in graph.
-        if (mGraph.Contains(obj.GetComponent<GraphNode_Viz>().Data))
-        {
-            //mOnUnSelectGraphNode?.Invoke(mSelectedGraphNode);
-            // change the mode to JOINING.
-            mFsm.SetCurrentState((int)ModeType.JOINING);
+            mFsm.SetCurrentState((int)ModeType.GRAPHNODE_JOINING);
         }
     }
 
@@ -363,9 +440,8 @@ public class GraphMap_Viz_Editor : MonoBehaviour
             GraphNode_Viz viz = obj.GetComponent<GraphNode_Viz>();
             viz.ResetColor();
             viz.Node = null;
+            Destroy(obj);
         }
-
-        //mLineFactory.SetAllInActive();
     }
 
     public void SaveGraph()
@@ -390,5 +466,12 @@ public class GraphMap_Viz_Editor : MonoBehaviour
     {
         SceneManager.LoadScene("Demo_GraphPathFinding_Play");
     }
+
+    public void OnSelectMode()
+    {
+        int mode = mLeanSwitchMode.State;
+        mFsm.SetCurrentState(mode);
+    }
+
     #endregion
 }

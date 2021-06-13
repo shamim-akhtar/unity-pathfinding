@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8162224296270638393}
   - component: {fileID: 6112996254017614716}
   - component: {fileID: 2258590547932501039}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: PrefabGraphNode
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,3 +131,4 @@ MonoBehaviour:
   mInnerSprite: {fileID: 3818373861825276010}
   DEFAULT_COLOR: {r: 0.2, g: 0.2, b: 0.2, a: 0.2}
   mOriginalCameraSize: 10
+  mLineWidth: 0.1
