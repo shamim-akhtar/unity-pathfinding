@@ -1,1 +1,2 @@
-# unity-pathfinding
+# Pathfinding for Game Development
+## Introduction
