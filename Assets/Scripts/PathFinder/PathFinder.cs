@@ -12,38 +12,79 @@ namespace GameAI
             Dijkstra,
             Greedy_Best_First,
         }
-
+        // An enumeration type to represent the status of the 
+        // pathfinder at any given time.
         public enum PathFinderStatus
         {
-            NOT_STARTED,
+            NOT_INITIALIZED,
             SUCCESS,
             FAILURE,
             RUNNING,
         }
 
+        // The Noce class. 
+        // It is an abstract class that provides the base class
+        // for any type of vertex that you want to implement in
+        // your path finding problem.
         abstract public class Node<T>
         {
+            // We store a reference to the T as Value.
             public T Value { get; private set; }
+
+            // The constructor for the Node class.
             public Node(T value)
             {
                 Value = value;
             }
 
+            // Get the neighbours for this node. 
+            // This is the most important function that 
+            // your concrete vertex class should implement.
             abstract public List<Node<T>> GetNeighbours();
-
         }
 
+        // The abstract PathFinder class that implements the core
+        // pathfinding related codes.
         abstract public class PathFinder<T>
         {
+
+            #region Delegates for cost calculation
+            // Create a delegate that defines the signature
+            // for calculating the cost between two 
+            // Nodes (T which makes a Node)
+            public delegate float CostFunction(T a, T b);
+            public CostFunction HeuristicCost { get; set; }
+            public CostFunction NodeTraversalCost { get; set; }
+            #endregion
+
+            #region PathFinderNode
+            // The PathFinderNode class.
+            // This class equates to a node in a the tree generated
+            // by the pathfinder in its search for the most optimal
+            // path. Do not confuse this with the Node class on top.
+            // This class encapsulates a Node and hold other attributes
+            // needed for the search traversal.
+            // The pathfinder creates instances of this class at runtime
+            // while doing the search.
             public class PathFinderNode
             {
+                // The parent of this node.
                 public PathFinderNode Parent { get; set; }
+
+                // The Node that this PathFinderNode is pointing to.
                 public Node<T> Location { get; private set; }
+
+                // The various costs.
                 public float Fcost { get; private set; }
                 public float GCost { get; private set; }
                 public float Hcost { get; private set; }
 
-                public PathFinderNode(Node<T> location, PathFinderNode parent, float gCost, float hCost)
+                // The constructor.
+                // It takes in the Node, the parent, the gvost and the hcost.
+                public PathFinderNode(Node<T> location,
+                    PathFinderNode parent,
+                    float gCost,
+                    float hCost)
                 {
                     Location = location;
                     Parent = parent;
@@ -51,35 +92,39 @@ namespace GameAI
                     SetGCost(gCost);
                 }
 
+                // Set the gcost. 
                 public void SetGCost(float c)
                 {
                     GCost = c;
                     Fcost = GCost + Hcost;
                 }
             }
-
-            #region Delegates for Action callbacks
-            // Some callbacks to handle on changes to the internal values.
-            // these callbacks can be used by the game to display visually the
-            // changes to the cells and lists.
-            public delegate void DelegateOnChangeCurrentNode(PathFinderNode node);
-            public DelegateOnChangeCurrentNode onChangeCurrentNode;
-            public delegate void DelegateOnAddToOpenList(PathFinderNode node);
-            public DelegateOnChangeCurrentNode onAddToOpenList;
-            public delegate void DelegateOnAddToClosedList(PathFinderNode node);
-            public DelegateOnChangeCurrentNode onAddToClosedList;
-            public delegate void DelegateOnDestinationFound(PathFinderNode node);
-            public DelegateOnChangeCurrentNode onDestinationFound;
-            public delegate void DelegateNoArgument();
-            public DelegateNoArgument onStarted;
-            public DelegateNoArgument onRunning;
-            public DelegateNoArgument onFailure;
-            public DelegateNoArgument onSuccess;
             #endregion
 
-            public PathFinderStatus Status { get; private set; } = PathFinderStatus.NOT_STARTED;
+            #region Properties
 
-            #region The Open and Closed lists and associated functions
+            // Add a property that holds the current status of the
+            // pathfinder. By default it is set to NOT_INITIALIZED.
+            // Also note that we have made the set to private to 
+            // ensure that only this class can change and set
+            // the status.
+            public PathFinderStatus Status
+            {
+                get;
+                private set;
+            } = PathFinderStatus.NOT_INITIALIZED;
+
+            // Add properties for the start and goal nodes.
+            public Node<T> Start { get; private set; }
+            public Node<T> Goal { get; private set; }
+
+            // The property to access the CurrentNode that the
+            // pathfinder is now at.
+            public PathFinderNode CurrentNode { get; private set; }
+
+            #endregion
+
+            #region Open and Closed lists and associated functions
             // The open list for the path finder.
             protected List<PathFinderNode> mOpenList = new List<PathFinderNode>();
 
@@ -104,6 +149,9 @@ namespace GameAI
                 return n;
             }
 
+            // A helper method to check if a value of T is in a list.
+            // If it is then return the index of the item where the
+            // value is. Otherwise return -1.
             protected int IsInList(List<PathFinderNode> myList, T cell)
             {
                 for (int i = 0; i < myList.Count; ++i)
@@ -113,59 +161,71 @@ namespace GameAI
                 }
                 return -1;
             }
+
             #endregion
 
-            public void Reset()
-            {
-                if(Status == PathFinderStatus.RUNNING)
-                {
-                    // Cannot reset path finder. Path finding in progress.
-                    return;
-                }
+            #region Delegates for action callbacks.
+            // Some callbacks to handle on changes to the internal values.
+            // these callbacks can be used by the game to display visually the
+            // changes to the cells and lists.
+            public delegate void DelegatePathFinderNode(PathFinderNode node);
+            public DelegatePathFinderNode onChangeCurrentNode;
+            public DelegatePathFinderNode onAddToOpenList;
+            public DelegatePathFinderNode onAddToClosedList;
+            public DelegatePathFinderNode onDestinationFound;
 
-                CurrentNode = null;
+            public delegate void DelegateNoArgument();
+            public DelegateNoArgument onStarted;
+            public DelegateNoArgument onRunning;
+            public DelegateNoArgument onFailure;
+            public DelegateNoArgument onSuccess;
+            #endregion
 
-                mOpenList.Clear();
-                mClosedList.Clear();
-
-                Status = PathFinderStatus.NOT_STARTED;
-            }
-
-            public Node<T> Start { get; private set; }
-            public Node<T> Goal { get; private set; }
-
-            public PathFinderNode CurrentNode { get; private set; }
-
-            public delegate float CostFunction(T a, T b);
-            public CostFunction HCostFunction { get; set; }
-            public CostFunction GCostFunction { get; set; }
-
+            #region Actual path finding search functions
+            // Stage 1. Initialize the serach.
             // Initialize a new search.
             // Note that a search can only be initialized if 
             // the path finder is not already running.
-            // call Reset before initializing a new search.
-            public void Initialize(Node<T> start, Node<T> goal)
+            public bool Initialize(Node<T> start, Node<T> goal)
             {
                 if (Status == PathFinderStatus.RUNNING)
                 {
-                    // Cannot reset path finder. Path finding in progress.
-                    return;
+                    // Path finding is already in progress.
+                    return false;
                 }
 
+                // Reset the variables.
+                Reset();
+
+                // Set the start and the goal nodes for this search.
                 Start = start;
                 Goal = goal;
 
-                float H = HCostFunction(Start.Value, Goal.Value);
+                // Calculate the H cost for the start.
+                float H = HeuristicCost(Start.Value, Goal.Value);
+
+                // Create a root node with its parent as null.
                 PathFinderNode root = new PathFinderNode(Start, null, 0f, H);
+
+                // add this root node to our open list.
                 mOpenList.Add(root);
 
+                // set the current node to root node.
                 CurrentNode = root;
+
+                // Invoke the deletages to inform the caller if the delegates are not null.
                 onChangeCurrentNode?.Invoke(CurrentNode);
                 onStarted?.Invoke();
+
+                // set the status of the pathfinder to RUNNING.
                 Status = PathFinderStatus.RUNNING;
+
+                return true;
             }
 
-            // take a search step.
+            // Stage 2: Step until success or failure
+            // Take a search step. The user must continue to call this method 
+            // until the Status is either SUCCESS or FAILURE.
             public PathFinderStatus Step()
             {
                 // Add the current node to the closed list.
@@ -174,7 +234,7 @@ namespace GameAI
                 // Call the delegate to inform any subscribers.
                 onAddToClosedList?.Invoke(CurrentNode);
 
-                if(mOpenList.Count == 0)
+                if (mOpenList.Count == 0)
                 {
                     // we have exhausted our search. No solution is found.
                     Status = PathFinderStatus.FAILURE;
@@ -193,18 +253,19 @@ namespace GameAI
                 mOpenList.Remove(CurrentNode);
 
                 // Check if the node contains the Goal cell.
-                if (EqualityComparer<T>.Default.Equals(CurrentNode.Location.Value, Goal.Value))
+                if (EqualityComparer<T>.Default.Equals(
+                    CurrentNode.Location.Value, Goal.Value))
                 {
-                    Debug.Log("Found destination.");
                     Status = PathFinderStatus.SUCCESS;
                     onDestinationFound?.Invoke(CurrentNode);
                     onSuccess?.Invoke();
                     return Status;
                 }
 
-                // find the neighbours.
+                // Find the neighbours.
                 List<Node<T>> neighbours = CurrentNode.Location.GetNeighbours();
 
+                // Traverse each of these neighbours for possible expansion.
                 foreach (Node<T> cell in neighbours)
                 {
                     AlgorithmSpecificImplementation(cell);
@@ -216,6 +277,25 @@ namespace GameAI
             }
 
             abstract protected void AlgorithmSpecificImplementation(Node<T> cell);
+
+            // Reset the internal variables for a new search.
+            protected void Reset()
+            {
+                if (Status == PathFinderStatus.RUNNING)
+                {
+                    // Cannot reset path finder. Path finding in progress.
+                    return;
+                }
+
+                CurrentNode = null;
+
+                mOpenList.Clear();
+                mClosedList.Clear();
+
+                Status = PathFinderStatus.NOT_INITIALIZED;
+            }
+
+            #endregion
         }
     }
 }

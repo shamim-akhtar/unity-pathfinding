@@ -182,12 +182,12 @@ public class GraphMap_Viz_Play : MonoBehaviour
         {
             case CostFunctionType.MANHATTAN:
                 {
-                    mGraphPathFinder_Viz.mPathFinder.HCostFunction = SampleGraph.GetManhattanCost;
+                    mGraphPathFinder_Viz.mPathFinder.HeuristicCost = SampleGraph.GetManhattanCost;
                     break;
                 }
             case CostFunctionType.EUCLIDEN:
                 {
-                    mGraphPathFinder_Viz.mPathFinder.HCostFunction = SampleGraph.GetEuclideanCost;
+                    mGraphPathFinder_Viz.mPathFinder.HeuristicCost = SampleGraph.GetEuclideanCost;
                     break;
                 }
         }

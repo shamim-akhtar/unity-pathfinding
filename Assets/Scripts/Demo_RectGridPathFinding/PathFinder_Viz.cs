@@ -41,8 +41,8 @@ public class PathFinder_Viz : MonoBehaviour
 
     private void InitPathFinder()
     {
-        mPathFinder.GCostFunction = RectGridMap.GetCostBetweenTwoCells;
-        mPathFinder.HCostFunction = RectGridMap.GetManhattanCost;
+        mPathFinder.NodeTraversalCost = RectGridMap.GetCostBetweenTwoCells;
+        mPathFinder.HeuristicCost = RectGridMap.GetManhattanCost;
 
         if (mGridViz != null && mGridViz.gameObject.activeSelf)
         {
@@ -78,7 +78,6 @@ public class PathFinder_Viz : MonoBehaviour
         }
 
         // NOTE: Remember to call Reset as we are doing a new search.
-        mPathFinder.Reset();
         mPathFinder.Initialize(start, goal);
         mReachedGoal = false;
     }

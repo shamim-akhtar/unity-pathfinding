@@ -23,8 +23,8 @@ namespace GameAI
                     // We can actually implement a function to calculate the cost 
                     // between two adjacent cells. 
 
-                    float G = CurrentNode.GCost + GCostFunction(CurrentNode.Location.Value, cell.Value);
-                    float H = HCostFunction(cell.Value, Goal.Value);
+                    float G = CurrentNode.GCost + NodeTraversalCost(CurrentNode.Location.Value, cell.Value);
+                    float H = HeuristicCost(cell.Value, Goal.Value);
 
                     // Check if the cell is already there in the open list.
                     int idOList = IsInList(mOpenList, cell.Value);

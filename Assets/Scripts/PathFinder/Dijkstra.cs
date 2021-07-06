@@ -12,7 +12,7 @@ namespace GameAI
             {
                 if (IsInList(mClosedList, cell.Value) == -1)
                 {
-                    float G = CurrentNode.GCost + GCostFunction(CurrentNode.Location.Value, cell.Value);
+                    float G = CurrentNode.GCost + NodeTraversalCost(CurrentNode.Location.Value, cell.Value);
                     float H = 0.0f;// HCostFunction(cell, Goal);
                     //Dijkstra doesn't include the Heuristic cost
 

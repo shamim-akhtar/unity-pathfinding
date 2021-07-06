@@ -139,12 +139,12 @@ public class PathFinderDemo : MonoBehaviour
         {
             case CostFunctionType.MANHATTAN:
                 {
-                    mPathFinder_Viz.mPathFinder.HCostFunction = RectGridMap.GetManhattanCost;
+                    mPathFinder_Viz.mPathFinder.HeuristicCost = RectGridMap.GetManhattanCost;
                     break;
                 }
             case CostFunctionType.EUCLIDEN:
                 {
-                    mPathFinder_Viz.mPathFinder.HCostFunction = RectGridMap.GetEuclideanCost;
+                    mPathFinder_Viz.mPathFinder.HeuristicCost = RectGridMap.GetEuclideanCost;
                     break;
                 }
         }

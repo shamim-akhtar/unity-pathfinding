@@ -21,8 +21,8 @@ public class PuzzleSolver : MonoBehaviour
         mGoalState = new PuzzleNode(mPuzzle, new PuzzleState(3));
 
         //mAstarSolver.onChangeCurrentNode = OnChangeCurrentNode;
-        mAstarSolver.GCostFunction = PuzzleMap.GetCostBetweenTwoCells;
-        mAstarSolver.HCostFunction = PuzzleMap.GetManhattanCost;
+        mAstarSolver.NodeTraversalCost = PuzzleMap.GetCostBetweenTwoCells;
+        mAstarSolver.HeuristicCost = PuzzleMap.GetManhattanCost;
     }
 
     // Update is called once per frame
@@ -32,7 +32,6 @@ public class PuzzleSolver : MonoBehaviour
         {
             //mCurrentState.RandomizeSolvable();
             mPuzzleStateViz.SetPuzzleState(mCurrentState.Value);
-            mAstarSolver.Reset();
             mAstarSolver.Initialize(mCurrentState, mGoalState);
 
             Solve();

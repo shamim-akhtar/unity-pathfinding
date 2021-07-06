@@ -13,7 +13,7 @@ namespace GameAI
                 if (IsInList(mClosedList, cell.Value) == -1)
                 {
                     float G = 0.0f;// CurrentNode.GCost + GCostFunction(CurrentNode.Location, cell);
-                    float H = HCostFunction(cell.Value, Goal.Value);
+                    float H = HeuristicCost(cell.Value, Goal.Value);
                     //Greedy best-first does doesn't include the G cost
 
                     // Check if the cell is already there in the open list.

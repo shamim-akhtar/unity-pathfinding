@@ -44,8 +44,8 @@ public class GraphPathFinder_Viz : MonoBehaviour
 
     private void InitPathFinder()
     {
-        mPathFinder.GCostFunction = SampleGraph.GetCostBetweenTwoCells;
-        mPathFinder.HCostFunction = SampleGraph.GetManhattanCost;
+        mPathFinder.NodeTraversalCost = SampleGraph.GetCostBetweenTwoCells;
+        mPathFinder.HeuristicCost = SampleGraph.GetManhattanCost;
 
         mPathFinder.onAddToClosedList += mGraphMap_Viz_Play.OnAddToClosedList;
         mPathFinder.onAddToOpenList += mGraphMap_Viz_Play.OnAddToOpenList;
@@ -66,7 +66,6 @@ public class GraphPathFinder_Viz : MonoBehaviour
         }
 
         // NOTE: Remember to call Reset as we are doing a new search.
-        mPathFinder.Reset();
         mPathFinder.Initialize(StartNode, destination);
         mReachedGoal = false;
     }
